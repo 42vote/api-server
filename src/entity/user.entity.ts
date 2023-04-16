@@ -3,6 +3,7 @@ import {
   CreateDateColumn,
   Entity,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 
 @Entity()
@@ -22,6 +23,18 @@ export default class User {
   @Column({ default: 0 })
   wallet: number;
 
+  @Column({ default: null })
+  accessToken: string;
+
+  @Column({ default: null })
+  accessTokenExpiredAt: Date;
+
+  @Column({ default: null })
+  refreshToken: string;
+
   @CreateDateColumn()
   createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }
