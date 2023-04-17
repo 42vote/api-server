@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { AppDataSource } from 'src/database';
 import { Repository } from 'typeorm';
 import User from 'src/entity/user.entity';
-import * as dotenv from "dotenv";
+import * as dotenv from 'dotenv';
 
 @Injectable()
 export class UserService {

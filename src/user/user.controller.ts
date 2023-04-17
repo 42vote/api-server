@@ -1,9 +1,9 @@
 import {
+  Body,
   Controller,
   Get,
   InternalServerErrorException,
   Post,
-  Query,
   Req,
   Res,
   UnauthorizedException,
@@ -29,14 +29,13 @@ export class UserController {
     const authSite = `https://api.intra.42.fr/oauth/authorize`;
     const clientId =
       'client_id=u-s4t2ud-dd72647792601b765e45b2925cd5455ca3b035957e70a99241e645fa8d23b4e2';
-    console.log(req.headers.referer);
     const redir = `redirect_uri=${req.headers.referer}auth/42/redirect`;
     const url = `${authSite}?${clientId}&${redir}&response_type=code`;
     res.redirect(url);
   }
 
   @Post('login')
-  async login(@Query('code') code: string, @Res() res: Response) {
+  async login(@Body('code') code: string, @Res() res: Response) {
     const rawUser = await this.authService.getUserInfoFrom42(code);
     if (rawUser == null) throw new UnauthorizedException(`error`);
     let user = await this.userService.getUser(rawUser.intraId);
@@ -44,22 +43,22 @@ export class UserController {
     else this.userService.updateUser(user);
     if (user == null) throw new InternalServerErrorException('not found user');
     const token = await this.authService.createToken(user);
-    res.cookie('token', token, {
+    res.cookie('access_token', token.access_token, {
       maxAge: +process.env.JWT_AGE * 1000,
       httpOnly: true,
-      sameSite: 'none',
-      secure: true,
+      //   sameSite: 'none',
+      //   secure: true,
     });
     res.json({ token });
   }
 
   @Post('logout')
   async logout(@Req() req, @Res() res: Response) {
-    res.cookie('token', null, {
+    res.cookie('access_token', null, {
       maxAge: +process.env.JWT_AGE * 1000,
       httpOnly: true,
-      sameSite: 'none',
-      secure: true,
+      //   sameSite: 'none',
+      //   secure: true,
     });
     res.json({ message: 'success logout' });
   }

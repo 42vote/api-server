@@ -2,16 +2,16 @@ import { NestFactory } from '@nestjs/core';
 import * as dotenv from 'dotenv';
 import { AppModule } from './app.module';
 import { AppDataSource } from './database';
-import * as cookieParser from "cookie-parser";
+import * as cookieParser from 'cookie-parser';
 import { NextFunction, Request } from 'express';
 
 const cookieAuth = (req: Request, res: Response, next: NextFunction) => {
-  const authHeader = req.get("Authorization");
-  if (authHeader == null && req.cookies && req.cookies['access_token']) {
+  req.headers['Authorization'] = req.get('Authorization');
+  if (req.headers['Authorization'] == null && req.cookies['access_token']) {
     req.headers['Authorization'] = `Bearer ${req.cookies['access_token']}`;
   }
   next();
-}
+};
 
 async function bootstrap() {
   dotenv.config();
@@ -26,4 +26,3 @@ async function bootstrap() {
   await app.listen(process.env.PORT || 3000);
 }
 bootstrap();
-
