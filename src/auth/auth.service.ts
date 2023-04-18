@@ -6,7 +6,7 @@ import User from 'src/entity/user.entity';
 export class AuthService {
   constructor(private jwtService: JwtService) {}
 
-  async getUserInfoFrom42(code: string) {
+  async getUserInfoFrom42(code: string, referer: string) {
     let token = null;
     if (code == null) throw new Error(`auth fail: code is null`);
     try {
@@ -14,7 +14,7 @@ export class AuthService {
         grant_type: 'authorization_code',
         client_id: process.env.FT_UID,
         client_secret: process.env.FT_SECRET,
-        redirect_uri: `${process.env.CLIENT_DOMAIN}/auth/42/redirect`,
+        redirect_uri: `${referer}auth/42/redirect`,
         code,
       };
       token = await fetch('https://api.intra.42.fr/oauth/token', {

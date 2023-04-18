@@ -35,8 +35,11 @@ export class UserController {
   }
 
   @Post('login')
-  async login(@Body('code') code: string, @Res() res: Response) {
-    const rawUser = await this.authService.getUserInfoFrom42(code);
+  async login(@Req() req, @Body('code') code: string, @Res() res: Response) {
+    const rawUser = await this.authService.getUserInfoFrom42(
+      code,
+      req.headers.referer,
+    );
     if (rawUser == null) throw new UnauthorizedException(`error`);
     let user = await this.userService.getUser(rawUser.intraId);
     if (user == null) user = await this.userService.addUser(rawUser);
