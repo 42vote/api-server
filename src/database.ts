@@ -3,7 +3,7 @@ import { DataSource } from 'typeorm';
 import User from './entity/user.entity';
 import * as dotenv from 'dotenv';
 import Document from './entity/document.entity';
-import DocOption from './entity/doc_option.entity';
+import DocOption from './entity/doc-option.entity';
 import Vote from './entity/vote.entity';
 import Category from './entity/category.entity';
 

@@ -25,6 +25,6 @@ export default class DocOption {
   @ManyToOne(() => Category)
   category: Category;
 
-  @OneToMany(() => Document, document => document.option)
-  documents: Document [];
+  @OneToMany(() => Document, (document) => document.option)
+  documents: Document[];
 }

@@ -6,7 +6,7 @@ import {
   UpdateDateColumn,
   OneToMany
 } from 'typeorm';
-import DocOption from './doc_option.entity';
+import DocOption from './doc-option.entity';
 import Document from './document.entity';
 
 

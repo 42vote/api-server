@@ -4,11 +4,11 @@ import {
   Column,
   ManyToOne,
   OneToMany,
-  CreateDateColumn
+  CreateDateColumn,
 } from 'typeorm';
 import User from './user.entity';
 import Category from './category.entity';
-import DocOption from './doc_option.entity';
+import DocOption from './doc-option.entity';
 import Vote from './vote.entity';
 
 @Entity()
