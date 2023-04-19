@@ -2,9 +2,12 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import Document from './document.entity';
+import Vote from './vote.entity';
 
 @Entity()
 export default class User {
@@ -37,4 +40,10 @@ export default class User {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @OneToMany(() => Document, document => document.author)
+  documents: Document [];
+
+  @OneToMany(() => Vote, vote => vote.user)
+  votes: Vote [];
 }

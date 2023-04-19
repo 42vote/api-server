@@ -2,6 +2,10 @@ import 'reflect-metadata';
 import { DataSource } from 'typeorm';
 import User from './entity/user.entity';
 import * as dotenv from 'dotenv';
+import Document from './entity/document.entity';
+import DocOption from './entity/doc_option.entity';
+import Vote from './entity/vote.entity';
+import Category from './entity/category.entity';
 
 dotenv.config();
 export const AppDataSource = new DataSource({
@@ -14,5 +18,6 @@ export const AppDataSource = new DataSource({
   synchronize: true,
   timezone: 'Asia/Seoul',
   // logging: false,
-  entities: [User],
+  entities: [User, Document, Category, DocOption, Vote,],
 });
+ 

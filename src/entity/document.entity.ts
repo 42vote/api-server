@@ -1,0 +1,39 @@
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  OneToMany,
+  CreateDateColumn
+} from 'typeorm';
+import User from './user.entity';
+import Category from './category.entity';
+import DocOption from './doc_option.entity';
+import Vote from './vote.entity';
+
+@Entity()
+export default class Document {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
+  title: string;
+
+  @Column()
+  context: string;
+
+  @ManyToOne(() => User)
+  author: User;
+
+  @ManyToOne(() => Category)
+  category: Category;
+
+  @ManyToOne(() => DocOption)
+  option: DocOption;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @OneToMany(() => Vote, vote => vote.document)
+  votes: Vote [];
+}
