@@ -9,8 +9,6 @@ import {
 import DocOption from './doc-option.entity';
 import Document from './document.entity';
 
-
-
 @Entity()
 export default class Category {
   @PrimaryGeneratedColumn()
@@ -20,8 +18,7 @@ export default class Category {
   title: string;
 
   @Column()
-  disabled: boolean;
-
+  expired: boolean;
 
   @Column()
   multipleVote: boolean;
