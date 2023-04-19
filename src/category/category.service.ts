@@ -20,6 +20,8 @@ export class CategoryService {
   async searchCat(body: SearchCategoryDto) {
     const { expired } = body;
 
+
+
     let query = this.CatRepo.createQueryBuilder('category');
 
     if (expired !== 'all') {
@@ -34,9 +36,9 @@ export class CategoryService {
       .getRawMany();
 
     return categories.map((category) => ({
-      id: category.id,
-      title: category.title,
-      expired: category.expired,
+      id: category.category_id,
+      title: category.category_title,
+      expired: category.category_expired === 1 ? true : false,
     }));
   }
 
