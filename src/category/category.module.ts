@@ -10,7 +10,6 @@ import DocOption from 'src/entity/doc-option.entity';
 @Module({
   imports: [
     ConfigModule,
-    ConfigModule,
     TypeOrmModule.forFeature([User, Category, DocOption])
   ],
   providers: [CategoryService, ConfigService],
