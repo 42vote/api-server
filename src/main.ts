@@ -1,11 +1,12 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { AppDataSource } from './database';
+// import { AppDataSource } from './database';
 import { NextFunction, Request } from 'express';
 import * as dotenv from 'dotenv';
 import * as cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
+import { ConfigService } from '@nestjs/config';
 
 const cookieAuth = (req: Request, res: Response, next: NextFunction) => {
   req.headers['Authorization'] = req.get('Authorization');
@@ -16,21 +17,25 @@ const cookieAuth = (req: Request, res: Response, next: NextFunction) => {
 };
 
 async function bootstrap() {
-  dotenv.config();
-  await AppDataSource.initialize();
+  // dotenv.config();
+  // await AppDataSource.initialize();
   const app = await NestFactory.create(AppModule);
+  const configService = app.get(ConfigService);
+
   app.enableCors({
     origin: [
       'http://localhost:3000',
       'http://localhost:3001',
-      process.env.CLIENT_DOMAIN,
+      // process.env.CLIENT_DOMAIN,
+      configService.get('CLIENT_DOMAIN'),
     ],
     credentials: true,
   });
   app.use(
     rateLimit({
       windowMs: 60 * 1000, // 1 minutes
-      max: +process.env.LIMIT_FOR_MIN ?? 100, // Limit each IP to 100 requests per `window` (here, per 1 minutes)
+      // max: +process.env.LIMIT_FOR_MIN ?? 100, // Limit each IP to 100 requests per `window` (here, per 1 minutes)
+      max: +configService.get('LIMIT_FOR_MIN') ?? 100,
       standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
       legacyHeaders: false, // Disable the `X-RateLimit-*` headers
     }),
@@ -38,6 +43,8 @@ async function bootstrap() {
   app.use(helmet());
   app.use(cookieParser());
   app.use(cookieAuth);
-  await app.listen(process.env.PORT || 3000);
+  // await app.listen(process.env.PORT || 3000);
+  await app.listen(configService.get('PORT') || 3000);
+
 }
 bootstrap();
