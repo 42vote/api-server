@@ -44,7 +44,7 @@ export class AwsS3Service {
   async listFiles(dirname: string): Promise<Array<any>> {
     const listParams = {
       Bucket: process.env.AWS_S3_BUCKET,
-      Prefix: dirname,
+      Prefix: dirname + '/',
     };
     const res = await this.s3.listObjectsV2(listParams).promise();
     return res.Contents.map((x) => x);
