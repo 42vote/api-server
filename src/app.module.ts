@@ -6,6 +6,7 @@ import { CategoryModule } from './category/category.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { createTypeOrmOptions } from './database';
+import { DocumentModule } from './document/document.module';
 
 @Module({
   imports: [
@@ -15,7 +16,7 @@ import { createTypeOrmOptions } from './database';
       useFactory: async (configService: ConfigService) => await createTypeOrmOptions(configService),
       inject: [ConfigService],
     }),
-    UserModule, CategoryModule,
+    UserModule, CategoryModule, DocumentModule
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -29,7 +29,6 @@ export class CategoryService {
     const { expired } = body;
 
 
-
     let query = this.CatRepo.createQueryBuilder('category');
 
     if (expired !== 'all') {
