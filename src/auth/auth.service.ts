@@ -33,7 +33,7 @@ export class AuthService {
       "created_at": number
       }*/
     } catch (e) {
-      console.error(e.message);
+      console.log(e.message);
       return null;
     }
     try {
@@ -56,7 +56,7 @@ export class AuthService {
         accessTokenExpiredAt,
       } as User;
     } catch (e) {
-      console.error(e.message);
+      console.log(e.message);
       return null;
     }
   }
