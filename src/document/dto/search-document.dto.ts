@@ -1,13 +1,13 @@
-import { IsIn, IsInt, IsOptional, IsString } from "class-validator";
+import { IsIn, IsInt, IsOptional, IsString } from 'class-validator';
 
 export default class SearchDocumentDto {
-	@IsInt()
-	categoryId: number;
-	
-	@IsOptional()
-	@IsInt()
-	listSize?: number;
+  @IsInt()
+  categoryId: number;
 
-	@IsInt()
-	listIndex: number;
+  @IsOptional()
+  @IsInt()
+  listSize?: number;
+
+  @IsInt()
+  listIndex: number;
 }

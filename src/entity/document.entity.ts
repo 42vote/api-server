@@ -34,6 +34,6 @@ export default class Document {
   @CreateDateColumn()
   createdAt: Date;
 
-  @OneToMany(() => Vote, vote => vote.document)
-  votes: Vote [];
+  @OneToMany(() => Vote, (vote) => vote.document)
+  votes: Vote[];
 }

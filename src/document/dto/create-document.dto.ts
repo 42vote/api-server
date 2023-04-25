@@ -1,4 +1,4 @@
-import { IsString, IsDate, IsInt, IsOptional, IsNumber } from 'class-validator';
+import { IsString, IsDate, IsInt, IsOptional } from 'class-validator';
 
 export default class CreateDocumentDto {
   @IsString()
@@ -17,5 +17,4 @@ export default class CreateDocumentDto {
   @IsOptional()
   @IsInt()
   goal?: number;
-
 }

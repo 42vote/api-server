@@ -1,10 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import SearchDocumentDto from './dto/search-document.dto';
 import CreateDocumentDto from './dto/create-document.dto';
-import { InjectRepository } from '@nestjs/typeorm';
 import Category from 'src/entity/category.entity';
 import DocOption from 'src/entity/doc-option.entity';
-import { Repository } from 'typeorm';
 import Document from 'src/entity/document.entity';
 import Vote from 'src/entity/vote.entity';
 
@@ -47,54 +47,53 @@ export class DocumentService {
   }
 
   async detailDoc(documentId: number) {
-	const document = await this.DocRepo.findOne({
-		where: {id: documentId},
-		relations: ['votes', 'option','category'],
-	})
-	// .createQueryBuilder('document')
-	// // .leftJoin('document.author', 'author')
-	// .leftJoin('document.option', 'option')
-	// .leftJoin('option.category', 'category')
-	// .leftJoin('document.votes', 'vote')
-	// .select([
-	//   'document.id',
-	//   'document.title',
-	//   'document.context',
-	// //   'author.name',
-	// //   'author.intraId',
-	//   'category.id',
-	//   'document.createdAt',
-	//   'option.voteExpire',
-	//   'option.goal',
-	//   'COUNT(DISTINCT vote.user) AS voteCnt',
-	//   `MAX(CASE WHEN vote.document.id = ${documentId} THEN 1 ELSE 0 END) AS isVote`,
-	//   'MAX(option.voteExpire) < NOW() AS isVoteExpired',
-	// ])
-	// .where('document.id = :id', { id: documentId })
-	// .groupBy('document.id')
-	// .getRawOne();
+    const document = await this.DocRepo.findOne({
+      where: { id: documentId },
+      relations: ['votes', 'option', 'category'],
+    });
+    // .createQueryBuilder('document')
+    // // .leftJoin('document.author', 'author')
+    // .leftJoin('document.option', 'option')
+    // .leftJoin('option.category', 'category')
+    // .leftJoin('document.votes', 'vote')
+    // .select([
+    //   'document.id',
+    //   'document.title',
+    //   'document.context',
+    // //   'author.name',
+    // //   'author.intraId',
+    //   'category.id',
+    //   'document.createdAt',
+    //   'option.voteExpire',
+    //   'option.goal',
+    //   'COUNT(DISTINCT vote.user) AS voteCnt',
+    //   `MAX(CASE WHEN vote.document.id = ${documentId} THEN 1 ELSE 0 END) AS isVote`,
+    //   'MAX(option.voteExpire) < NOW() AS isVoteExpired',
+    // ])
+    // .where('document.id = :id', { id: documentId })
+    // .groupBy('document.id')
+    // .getRawOne();
 
-
-	return {
-			id: document.id,
-			title : document.title,
-			content : document.context,
-			author : "yachoi", // neet to change
-			isAuthor : false, // always bool at the moment(04/19)
-			categoryId: document.category.id,
-			createAt : document.createdAt,
-			voteExpiredAt : document.option.voteExpire,
-			// goal : document.option.goal,
-			// voteCnt : document.votes.length,
-			isVote : false, // need to change
-			// isVoteExpired : document.option.voteExpire < new Date() ? true : false,
-	}
+    return {
+      id: document.id,
+      title: document.title,
+      content: document.context,
+      author: 'yachoi', // neet to change
+      isAuthor: false, // always bool at the moment(04/19)
+      categoryId: document.category.id,
+      createAt: document.createdAt,
+      voteExpiredAt: document.option.voteExpire,
+      // goal : document.option.goal,
+      // voteCnt : document.votes.length,
+      isVote: false, // need to change
+      // isVoteExpired : document.option.voteExpire < new Date() ? true : false,
+    };
   }
 
   async createDoc(body: CreateDocumentDto, token) {
     let docOption;
-	const docExpire = new Date(body.voteExpire);
-	docExpire.setDate(docExpire.getDate() + 7);
+    const docExpire = new Date(body.voteExpire);
+    docExpire.setDate(docExpire.getDate() + 7);
 
     if (body.goal && body.voteExpire) {
       docOption = await this.DocOpRepo.save({
@@ -112,7 +111,7 @@ export class DocumentService {
     const document = this.DocRepo.create({
       ...body,
       option: docOption,
-	//   author: { id: token.intraId },
+      //   author: { id: token.intraId },
       category: { id: body.categoryId }, // set the category relationship
     });
 
@@ -121,19 +120,19 @@ export class DocumentService {
 
   async deleteDoc(documentId: number) {
     const document = await this.DocRepo.findOne({
-		where: {id: documentId}, 
-		relations: ['option','category'],
-	});
+      where: { id: documentId },
+      relations: ['option', 'category'],
+    });
     if (!document) {
       throw new NotFoundException(`Document with ID ${documentId} not found`);
     }
 
-	// delete docOption if category is "goods or 5"
-    // if (document.category.id === 5) { 
-	//   await this.DocOpRepo.remove(document.option);
-	// }
+    // delete docOption if category is "goods or 5"
+    // if (document.category.id === 5) {
+    //   await this.DocOpRepo.remove(document.option);
+    // }
 
     return await this.DocRepo.remove(document);
-	// return document;
+    // return document;
   }
 }

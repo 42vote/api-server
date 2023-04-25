@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
-import { DocumentService } from './document.service';
-import { DocumentController } from './document.controller';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { DocumentService } from './document.service';
+import { DocumentController } from './document.controller';
 import User from 'src/entity/user.entity';
 import Category from 'src/entity/category.entity';
 import DocOption from 'src/entity/doc-option.entity';
@@ -10,11 +10,11 @@ import Document from 'src/entity/document.entity';
 import Vote from 'src/entity/vote.entity';
 
 @Module({
-  imports:[
+  imports: [
     ConfigModule,
-    TypeOrmModule.forFeature([User, Category, Document, DocOption, Vote])
+    TypeOrmModule.forFeature([User, Category, Document, DocOption, Vote]),
   ],
   providers: [DocumentService],
-  controllers: [DocumentController]
+  controllers: [DocumentController],
 })
 export class DocumentModule {}

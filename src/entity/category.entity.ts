@@ -1,10 +1,10 @@
-import { 
-  Entity, 
-  PrimaryGeneratedColumn, 
-  Column, 
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
   CreateDateColumn,
   UpdateDateColumn,
-  OneToMany
+  OneToMany,
 } from 'typeorm';
 import DocOption from './doc-option.entity';
 import Document from './document.entity';
@@ -32,9 +32,9 @@ export default class Category {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @OneToMany(() => DocOption, docOption => docOption.category)
+  @OneToMany(() => DocOption, (docOption) => docOption.category)
   docOption: DocOption;
 
-  @OneToMany(() => Document, document => document.category)
-  documents: Document [];
+  @OneToMany(() => Document, (document) => document.category)
+  documents: Document[];
 }
