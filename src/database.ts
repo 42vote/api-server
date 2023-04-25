@@ -8,6 +8,7 @@ import Vote from './entity/vote.entity';
 import Category from './entity/category.entity';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import Image from './entity/image.entity';
 
 export const createTypeOrmOptions = async (configService: ConfigService): Promise<TypeOrmModuleOptions> => ({
   type: 'mysql',
@@ -20,7 +21,7 @@ export const createTypeOrmOptions = async (configService: ConfigService): Promis
   // timezone: 'UTC',
   // timezone: 'Asia/Seoul',
   // loggin: false,
-  entities: [User, Document, Category, DocOption, Vote,],
+  entities: [User, Document, Category, DocOption, Vote, Image],
 });
 
 // dotenv.config();
