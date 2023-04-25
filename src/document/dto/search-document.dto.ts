@@ -4,10 +4,15 @@ export default class SearchDocumentDto {
 	@IsInt()
 	categoryId: number;
 	
-	@IsOptional()
 	@IsInt()
-	listSize?: number;
+	listSize: number;
 
 	@IsInt()
 	listIndex: number;
+
+	@IsOptional()
+	myPost: boolean;
+
+	@IsOptional()
+	myVote: boolean;	
 }

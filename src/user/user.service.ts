@@ -18,6 +18,12 @@ export class UserService {
     return await this.userRepo.findOne({ where: { intraId } });
   }
 
+  async getUserId(intraId: string): Promise<number | null> {
+    const user =  await this.userRepo.findOne({ where: { intraId } });
+    if (user) { return user.id; }
+    else { return null; }
+  }
+
   async addUser(user: User): Promise<User | null> {
     return await this.userRepo.save(user);
   }
