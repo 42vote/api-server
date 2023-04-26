@@ -19,8 +19,21 @@ export class DocumentController {
   constructor(readonly docService: DocumentService) {}
 
   @Get()
-  searchDocument(@Body() body: SearchDocumentDto) {
-    return this.docService.searchDoc(body);
+  searchDocument(
+    @Query('categoryId') categoryId: number = 0,
+    @Query('listIndex') listIndex: number = 0,
+    @Query('listSize') listSize: number = 5,
+    @Query('myPost') myPost: string = "false",
+    @Query('myVote') myVote: string = "false",
+  ) {
+    const searchDto = new SearchDocumentDto();
+    searchDto.categoryId = categoryId;
+    searchDto.listIndex = listIndex;
+    searchDto.listSize = listSize;
+    searchDto.myPost = myPost === 'true' ? true : false;
+    searchDto.myVote = myVote === 'true' ? true : false;
+
+    return this.docService.searchDoc(searchDto);
   }
 
   @Get(':document_id')

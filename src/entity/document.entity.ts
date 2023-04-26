@@ -10,6 +10,7 @@ import User from './user.entity';
 import Category from './category.entity';
 import DocOption from './doc-option.entity';
 import Vote from './vote.entity';
+import Image from './image.entity';
 
 @Entity()
 export default class Document {
@@ -34,6 +35,9 @@ export default class Document {
   @CreateDateColumn()
   createdAt: Date;
 
-  @OneToMany(() => Vote, (vote) => vote.document)
-  votes: Vote[];
+  @OneToMany(() => Vote, vote => vote.document)
+  votes: Vote [];
+
+  @OneToMany(() => Image, image => image.document)
+  images: Image [];
 }

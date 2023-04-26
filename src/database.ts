@@ -6,6 +6,7 @@ import Document from './entity/document.entity';
 import DocOption from './entity/doc-option.entity';
 import Vote from './entity/vote.entity';
 import Category from './entity/category.entity';
+import Image from './entity/image.entity';
 
 export const createTypeOrmOptions = async (
   configService: ConfigService,
@@ -19,5 +20,5 @@ export const createTypeOrmOptions = async (
   synchronize: true,
   // timezone: 'Asia/Seoul',
   // loggin: false,
-  entities: [User, Document, Category, DocOption, Vote],
+  entities: [User, Document, Category, DocOption, Vote, Image],
 });

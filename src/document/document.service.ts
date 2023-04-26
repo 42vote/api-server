@@ -21,73 +21,83 @@ export class DocumentService {
     private VoteRepo: Repository<Vote>,
   ) {}
 
-  async searchDoc(body: SearchDocumentDto) {
-    const categoryId = body.categoryId;
-    const listSize = body.listSize || 5; // default to 5 if listSize is not provided
-    const listIndex = body.listIndex;
+  async searchDoc(searchCriteria: SearchDocumentDto) {
 
-    const query = this.DocRepo.createQueryBuilder('document')
-      .select('document.id', 'id')
-      .addSelect('document.title', 'title')
-      .addSelect('COUNT(vote.id)', 'voteCnt')
-      .leftJoin('document.votes', 'vote', 'vote.documentId = document.id')
-      .where('document.category = :categoryId', { categoryId })
-      .groupBy('document.id')
-      .orderBy('document.id', 'DESC')
-      .skip(listIndex * 5)
-      .take(listSize);
+	const intraId = "yachoi"
+	let documents: Document[] = [];
 
-    const documents = await query.getRawMany();
+	if (searchCriteria.myPost === true) {
+		documents = await this.DocRepo.find({
+			relations: {
+			  author: true,
+			  votes: true,
+			  option: true,
+			},
+			where: {
+			  author: { intraId: intraId },
+			},
+			order: { id: 'DESC' },
+		  });
+	} else if (searchCriteria.myVote === true) {
+		const votes = await this.VoteRepo.find({
+			relations: {
+			  user: true,
+			  document: { option: true }
+			},
+			where: {
+				user: {intraId: intraId}
+			}
+		});
+		documents = votes.map((vote) => vote.document).sort((a, b) => b.id - a.id);
+	} else if (searchCriteria.categoryId !== 0) {
+		documents = await this.DocRepo.find({
+			relations: { 
+				category: true, 
+				option: true,
+				votes: true,
+			},
+			where: { category: { id: searchCriteria.categoryId } },
+			order: { id: 'DESC' },
+		})
+	}
+	
+	documents.slice(searchCriteria.listIndex * 5, searchCriteria.listIndex * 5 + searchCriteria.listSize)
 
-    return documents.map((doc) => ({
-      id: doc.id,
-      title: doc.title,
-      voteCnt: doc.voteCnt,
-    }));
+	return documents.map(doc => ({
+		id: doc.id,
+		title: doc.title,
+		goal: doc.option.goal,
+		voteCnt: doc.votes.length,
+		voteExpired: doc.option.voteExpire < new Date(),
+	}));
+  
   }
 
   async detailDoc(documentId: number) {
-    const document = await this.DocRepo.findOne({
-      where: { id: documentId },
-      relations: ['votes', 'option', 'category'],
-    });
-    // .createQueryBuilder('document')
-    // // .leftJoin('document.author', 'author')
-    // .leftJoin('document.option', 'option')
-    // .leftJoin('option.category', 'category')
-    // .leftJoin('document.votes', 'vote')
-    // .select([
-    //   'document.id',
-    //   'document.title',
-    //   'document.context',
-    // //   'author.name',
-    // //   'author.intraId',
-    //   'category.id',
-    //   'document.createdAt',
-    //   'option.voteExpire',
-    //   'option.goal',
-    //   'COUNT(DISTINCT vote.user) AS voteCnt',
-    //   `MAX(CASE WHEN vote.document.id = ${documentId} THEN 1 ELSE 0 END) AS isVote`,
-    //   'MAX(option.voteExpire) < NOW() AS isVoteExpired',
-    // ])
-    // .where('document.id = :id', { id: documentId })
-    // .groupBy('document.id')
-    // .getRawOne();
+	const document = await this.DocRepo.findOne({
+		where: {id: documentId},
+		relations: {
+			author: true,
+			votes: true,
+			option: true,
+			category: true,
+		},
+	})
 
-    return {
-      id: document.id,
-      title: document.title,
-      content: document.context,
-      author: 'yachoi', // neet to change
-      isAuthor: false, // always bool at the moment(04/19)
-      categoryId: document.category.id,
-      createAt: document.createdAt,
-      voteExpiredAt: document.option.voteExpire,
-      // goal : document.option.goal,
-      // voteCnt : document.votes.length,
-      isVote: false, // need to change
-      // isVoteExpired : document.option.voteExpire < new Date() ? true : false,
-    };
+	return {
+			id: document.id,
+			title : document.title,
+			content : document.context,
+			author : "yachoi", // neet to change
+			isAuthor : false, // always bool at the moment(04/19)
+			categoryId: document.category.id,
+			createAt : document.createdAt,
+			voteExpiredAt : document.option.voteExpire,
+			goal : document.option.goal,
+			voteCnt : document.votes.length,
+			isVote : false, // need to change
+			isVoteExpired : document.option.voteExpire < new Date() ? true : false,
+	}
   }
 
   async createDoc(body: CreateDocumentDto, token) {
