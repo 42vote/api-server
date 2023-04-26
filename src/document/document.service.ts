@@ -30,6 +30,8 @@ export class DocumentService {
 		documents = await this.DocRepo.find({
 			relations: {
 			  author: true,
+			  votes: true,
+			  option: true,
 			},
 			where: {
 			  author: { intraId: intraId },
@@ -40,7 +42,7 @@ export class DocumentService {
 		const votes = await this.VoteRepo.find({
 			relations: {
 			  user: true,
-			  document: true,
+			  document: { option: true }
 			},
 			where: {
 				user: {intraId: intraId}
@@ -49,15 +51,25 @@ export class DocumentService {
 		documents = votes.map((vote) => vote.document).sort((a, b) => b.id - a.id);
 	} else if (searchCriteria.categoryId !== 0) {
 		documents = await this.DocRepo.find({
-			relations: { category: true },
+			relations: { 
+				category: true, 
+				option: true,
+				votes: true,
+			},
 			where: { category: { id: searchCriteria.categoryId } },
 			order: { id: 'DESC' },
 		})
 	}
 	
-	
-	return documents.slice(searchCriteria.listIndex * 5, searchCriteria.listIndex * 5 + searchCriteria.listSize)
+	documents.slice(searchCriteria.listIndex * 5, searchCriteria.listIndex * 5 + searchCriteria.listSize)
 
+	return documents.map(doc => ({
+		id: doc.id,
+		title: doc.title,
+		goal: doc.option.goal,
+		voteCnt: doc.votes.length,
+		voteExpired: doc.option.voteExpire < new Date(),
+	}));
   
   }
 
@@ -72,7 +84,6 @@ export class DocumentService {
 		},
 	})
 
-
 	return {
 			id: document.id,
 			title : document.title,
@@ -82,10 +93,10 @@ export class DocumentService {
 			categoryId: document.category.id,
 			createAt : document.createdAt,
 			voteExpiredAt : document.option.voteExpire,
-			// goal : document.option.goal,
-			// voteCnt : document.votes.length,
+			goal : document.option.goal,
+			voteCnt : document.votes.length,
 			isVote : false, // need to change
-			// isVoteExpired : document.option.voteExpire < new Date() ? true : false,
+			isVoteExpired : document.option.voteExpire < new Date() ? true : false,
 	}
   }
 
