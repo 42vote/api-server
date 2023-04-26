@@ -1,13 +1,11 @@
 import {
-  Column,
   CreateDateColumn,
   Entity,
   ManyToOne,
-  PrimaryGeneratedColumn
-} from "typeorm";
-import User from "./user.entity";
-import Document from "./document.entity";
-
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import User from './user.entity';
+import Document from './document.entity';
 
 @Entity()
 export default class Vote {

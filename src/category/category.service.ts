@@ -1,12 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 import Category from 'src/entity/category.entity';
 import DocOption from 'src/entity/doc-option.entity';
 import CreateCategoryDto from './dto/create-category.dot';
 import SearchCategoryDto from './dto/search-category.dto';
-// import { AppDataSource } from 'src/database';
-import * as dotenv from 'dotenv';
-import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class CategoryService {
@@ -16,18 +14,16 @@ export class CategoryService {
     @InjectRepository(Category)
     private CatRepo: Repository<Category>,
     @InjectRepository(DocOption)
-    private DocOpRepo: Repository<DocOption>
+    private DocOpRepo: Repository<DocOption>,
   ) {
     // @InjectRepository(Category)
     // private CatRepo: Repository<Category>
     // this.CatRepo = AppDataSource.getRepository(Category);
     // this.DocOpRepo = AppDataSource.getRepository(DocOption);
-
     // dotenv.config();
   }
   async searchCat(body: SearchCategoryDto) {
     const { expired } = body;
-
 
     let query = this.CatRepo.createQueryBuilder('category');
 
@@ -49,9 +45,8 @@ export class CategoryService {
     }));
   }
 
-
   async createCat(body: CreateCategoryDto) {
-      // create a new category object from the DTO
+    // create a new category object from the DTO
     const category = new Category();
     category.title = body.title;
     category.expired = false;

@@ -9,11 +9,11 @@ import {
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
+import * as dotenv from 'dotenv';
 import { AuthService } from 'src/auth/auth.service';
 import { UserService } from './user.service';
 import { Request, Response } from 'express';
 import { AuthGuard } from 'src/auth/auth.guard';
-import * as dotenv from 'dotenv';
 
 @Controller('user')
 export class UserController {
