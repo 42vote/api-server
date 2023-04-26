@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
-import { DocumentService } from './document.service';
-import { DocumentController } from './document.controller';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { DocumentService } from './document.service';
+import { DocumentController } from './document.controller';
 import User from 'src/entity/user.entity';
 import Category from 'src/entity/category.entity';
 import DocOption from 'src/entity/doc-option.entity';
@@ -13,13 +13,13 @@ import Image from 'src/entity/image.entity';
 import { UserModule } from 'src/user/user.module';
 
 @Module({
-  imports:[
+  imports: [
     ConfigModule,
     TypeOrmModule.forFeature([User, Category, Document, DocOption, Vote, Image]),
     // AwsS3Module,
     UserModule,
   ],
   providers: [DocumentService],
-  controllers: [DocumentController]
+  controllers: [DocumentController],
 })
 export class DocumentModule {}

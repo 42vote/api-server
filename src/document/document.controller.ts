@@ -1,4 +1,13 @@
-import { Body, Controller, Delete, Get, Param, Post, Query, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { DocumentService } from './document.service';
 import CreateDocumentDto from './dto/create-document.dto';
 import SearchDocumentDto from './dto/search-document.dto';
@@ -28,7 +37,10 @@ export class DocumentController {
   }
 
   @Get(':document_id')
-  detailDocument(@Param('document_id') documentId: number, @Req() req: Request) {
+  detailDocument(
+    @Param('document_id') documentId: number,
+    @Req() req: Request,
+  ) {
     return this.docService.detailDoc(documentId);
   }
 
@@ -36,7 +48,7 @@ export class DocumentController {
   // creatDocument(@Body() body: CreateDocumentDto, @Req() req: Requeust ) {
   creatDocument(@Body() body: CreateDocumentDto) {
     const token = {
-      intraId: "yachoi",
+      intraId: 'yachoi',
       isAdmin: false,
       wallet: 10,
     };

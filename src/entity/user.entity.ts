@@ -41,9 +41,9 @@ export default class User {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @OneToMany(() => Document, document => document.author)
-  documents: Document [];
+  @OneToMany(() => Document, (document) => document.author)
+  documents: Document[];
 
-  @OneToMany(() => Vote, vote => vote.user)
-  votes: Vote [];
+  @OneToMany(() => Vote, (vote) => vote.user)
+  votes: Vote[];
 }
