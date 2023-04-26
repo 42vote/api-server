@@ -7,6 +7,7 @@ import { UserModule } from './user/user.module';
 import { CategoryModule } from './category/category.module';
 import { createTypeOrmOptions } from './database';
 import { DocumentModule } from './document/document.module';
+import { VoteModule } from './vote/vote.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { DocumentModule } from './document/document.module';
     UserModule,
     CategoryModule,
     DocumentModule,
+    VoteModule,
   ],
   controllers: [AppController],
   providers: [AppService],

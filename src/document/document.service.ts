@@ -145,4 +145,15 @@ export class DocumentService {
     return await this.DocRepo.remove(document);
     // return document;
   }
+
+  async getDocument(documentId: number) {
+    const document = await this.DocRepo.findOne({
+      where: { id: documentId },
+      relations: ['option', 'category'],
+    });
+    if (!document) {
+      throw new NotFoundException(`Document with ID ${documentId} not found`);
+    }
+    return document;
+  }
 }

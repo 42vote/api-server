@@ -21,5 +21,6 @@ import { UserModule } from 'src/user/user.module';
   ],
   providers: [DocumentService],
   controllers: [DocumentController],
+  exports: [DocumentService],
 })
 export class DocumentModule {}
