@@ -2,15 +2,16 @@ import { Injectable } from '@nestjs/common';
 import { S3 } from 'aws-sdk';
 import * as dotenv from 'dotenv';
 
+dotenv.config();
 @Injectable()
 export class AwsS3Service {
   private s3: S3;
   constructor() {
     dotenv.config();
     this.s3 = new S3({
-      accessKeyId: 'AKIAQYQTHPN7YIG2BK6S',
-      secretAccessKey: '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',
-      region: 'ap-northeast-2',
+      accessKeyId: process.env.AWS_S3_ACCESS,
+      secretAccessKey: process.env.AWS_S3_SECRET,
+      region: process.env.AWS_S3_REGION,
     });
   }
 
