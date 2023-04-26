@@ -22,8 +22,7 @@ export class CategoryService {
     // this.DocOpRepo = AppDataSource.getRepository(DocOption);
     // dotenv.config();
   }
-  async searchCat(body: SearchCategoryDto) {
-    const { expired } = body;
+  async searchCat(expired: string) {
 
     let query = this.CatRepo.createQueryBuilder('category');
 

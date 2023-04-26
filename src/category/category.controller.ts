@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import SearchCategoryDto from './dto/search-category.dto';
 import CreateCategoryDto from './dto/create-category.dot';
@@ -8,8 +8,8 @@ export class CategoryController {
   constructor(readonly catService: CategoryService) {}
 
   @Get()
-  searchCategory(@Body() body: SearchCategoryDto) {
-    return this.catService.searchCat(body);
+  searchCategory(@Query('expired') expired: string = 'all') {
+    return this.catService.searchCat(expired);
   }
 
   @Post()
