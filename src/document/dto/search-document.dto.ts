@@ -1,18 +1,25 @@
-import { IsIn, IsInt, IsOptional, IsString } from 'class-validator';
+import { Transform } from 'class-transformer';
+import { IsBooleanString, IsInt, IsPositive, Min } from 'class-validator';
 
 export default class SearchDocumentDto {
-	@IsInt()
-	categoryId: number;
-	
-	@IsInt()
-	listSize: number;
+  @IsInt()
+  @Min(0)
+  @Transform(({ value }) => parseInt(value, 10))
+  categoryId: number = 0;
 
-	@IsInt()
-	listIndex: number;
+  @IsInt()
+  @Min(0)
+  @Transform(({ value }) => parseInt(value, 10))
+  listIndex: number = 0;
 
-	@IsOptional()
-	myPost: boolean;
+  @IsInt()
+  @IsPositive()
+  @Transform(({ value }) => parseInt(value, 10))
+  listSize: number = 5;
 
-	@IsOptional()
-	myVote: boolean;	
+  @IsBooleanString()
+  myPost: string = 'false';
+
+  @IsBooleanString()
+  myVote: string = 'false';
 }

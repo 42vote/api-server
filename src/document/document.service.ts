@@ -22,10 +22,9 @@ export class DocumentService {
   ) {}
 
   async searchDoc(searchCriteria: SearchDocumentDto, user: any) {
-    user.intraId;
     let documents: Document[] = [];
 
-    if (searchCriteria.myPost === true) {
+    if (searchCriteria.myPost === 'true') {
       documents = await this.DocRepo.find({
         relations: {
           author: true,
@@ -36,28 +35,26 @@ export class DocumentService {
           author: { intraId: user.intraId },
         },
         order: { id: 'DESC' },
-		skip: searchCriteria.listIndex * 5,
-		take: searchCriteria.listSize,
+        skip: searchCriteria.listIndex * 5,
+        take: searchCriteria.listSize,
       });
-    } else if (searchCriteria.myVote === true) {
+    } else if (searchCriteria.myVote === 'true') {
       const votes = await this.VoteRepo.find({
         relations: {
           user: true,
-          document: { 
-			option: true,
-			votes: true,
-			},
+          document: {
+            option: true,
+            votes: true,
+          },
         },
         where: {
           user: { intraId: user.intraId },
         },
-		order: { id: 'DESC' },
-		skip: searchCriteria.listIndex * 5,
-		take: searchCriteria.listSize,
+        order: { id: 'DESC' },
+        skip: searchCriteria.listIndex * 5,
+        take: searchCriteria.listSize,
       });
-      documents = votes
-        .map((vote) => vote.document)
-
+      documents = votes.map((vote) => vote.document);
     } else if (searchCriteria.categoryId !== 0) {
       documents = await this.DocRepo.find({
         relations: {
@@ -67,11 +64,10 @@ export class DocumentService {
         },
         where: { category: { id: searchCriteria.categoryId } },
         order: { id: 'DESC' },
-		skip: searchCriteria.listIndex * 5,
-		take: searchCriteria.listSize,
+        skip: searchCriteria.listIndex * 5,
+        take: searchCriteria.listSize,
       });
     }
-
 
     return documents.map((doc) => ({
       id: doc.id,

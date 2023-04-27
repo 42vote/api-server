@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -8,11 +9,13 @@ import {
   Query,
   Req,
   UseGuards,
+  ValidationPipe,
 } from '@nestjs/common';
 import { DocumentService } from './document.service';
 import CreateDocumentDto from './dto/create-document.dto';
 import SearchDocumentDto from './dto/search-document.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { isNumberString } from 'class-validator';
 
 @Controller('document')
 @UseGuards(AuthGuard)
@@ -21,20 +24,12 @@ export class DocumentController {
 
   @Get()
   searchDocument(
-    @Query('categoryId') categoryId: number = 0,
-    @Query('listIndex') listIndex: number = 0,
-    @Query('listSize') listSize: number = 5,
-    @Query('myPost') myPost: string = 'false',
-    @Query('myVote') myVote: string = 'false',
+    @Query(
+      new ValidationPipe({ exceptionFactory: () => new BadRequestException() }),
+    )
+    searchDto: SearchDocumentDto,
     @Req() token: Request,
   ) {
-    const searchDto = new SearchDocumentDto();
-    searchDto.categoryId = categoryId;
-    searchDto.listIndex = listIndex;
-    searchDto.listSize = listSize;
-    searchDto.myPost = myPost === 'true' ? true : false;
-    searchDto.myVote = myVote === 'true' ? true : false;
-
     return this.docService.searchDoc(searchDto, token['user']);
   }
 
