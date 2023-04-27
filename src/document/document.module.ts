@@ -15,7 +15,14 @@ import { UserModule } from 'src/user/user.module';
 @Module({
   imports: [
     ConfigModule,
-    TypeOrmModule.forFeature([User, Category, Document, DocOption, Vote, Image]),
+    TypeOrmModule.forFeature([
+      User,
+      Category,
+      Document,
+      DocOption,
+      Vote,
+      Image,
+    ]),
     // AwsS3Module,
     UserModule,
   ],

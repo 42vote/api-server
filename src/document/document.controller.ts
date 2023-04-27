@@ -24,8 +24,8 @@ export class DocumentController {
     @Query('categoryId') categoryId: number = 0,
     @Query('listIndex') listIndex: number = 0,
     @Query('listSize') listSize: number = 5,
-    @Query('myPost') myPost: string = "false",
-    @Query('myVote') myVote: string = "false",
+    @Query('myPost') myPost: string = 'false',
+    @Query('myVote') myVote: string = 'false',
   ) {
     const searchDto = new SearchDocumentDto();
     searchDto.categoryId = categoryId;

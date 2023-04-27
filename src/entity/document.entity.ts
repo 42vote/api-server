@@ -35,9 +35,9 @@ export default class Document {
   @CreateDateColumn()
   createdAt: Date;
 
-  @OneToMany(() => Vote, vote => vote.document)
-  votes: Vote [];
+  @OneToMany(() => Vote, (vote) => vote.document)
+  votes: Vote[];
 
-  @OneToMany(() => Image, image => image.document)
-  images: Image [];
+  @OneToMany(() => Image, (image) => image.document)
+  images: Image[];
 }

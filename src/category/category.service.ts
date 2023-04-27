@@ -23,7 +23,6 @@ export class CategoryService {
     // dotenv.config();
   }
   async searchCat(expired: string) {
-
     let query = this.CatRepo.createQueryBuilder('category');
 
     if (expired !== 'all') {
