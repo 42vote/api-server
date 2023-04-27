@@ -63,6 +63,7 @@ export class AuthService {
 
   async createToken(user: User) {
     const payload = {
+      userId: user.id,
       intraId: user.intraId,
       isAdmin: user.isAdmin,
       wallet: user.wallet,
