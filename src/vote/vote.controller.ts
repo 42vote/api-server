@@ -19,6 +19,7 @@ import DeleteVoteDto from './dto/delete-vote.dto';
 import SearchVoteDto from './dto/search-vote.dto';
 import { VoteService } from './vote.service';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { AuthAdminGuard } from 'src/auth/auth-admin.guard';
 
 @Controller('vote')
 export class VoteController {
@@ -29,10 +30,17 @@ export class VoteController {
   ) {}
 
   @Get()
-  // TODO: access only admin
+  @UseGuards(AuthAdminGuard)
+  async getVote(@Query() search: SearchVoteDto) {
+    return await this.voteService.getVoteRich({ ...search });
+  }
+
+  @Get('me')
   @UseGuards(AuthGuard)
-  async getVote(@Req() req, @Query() search: SearchVoteDto) {
-    return await this.voteService.getVote({ ...search });
+  async getVoteMe(@Req() req, @Query() search: SearchVoteDto) {
+    const intraId = req.user?.intraId;
+    if (intraId == null) throw new InternalServerErrorException();
+    return await this.voteService.getVote({ ...search, intraId });
   }
 
   @Post('me')
@@ -62,13 +70,5 @@ export class VoteController {
     if (vote.length === 0) return;
     if (vote[0].user?.intraId !== intraId) throw new ForbiddenException();
     await this.voteService.deleteVote(vote[0]);
-  }
-
-  @Get('me')
-  @UseGuards(AuthGuard)
-  async getVoteMe(@Req() req, @Query() search: SearchVoteDto) {
-    const intraId = req.user.intraId;
-    if (intraId == null) throw new InternalServerErrorException();
-    return await this.voteService.getVote({ ...search, intraId });
   }
 }

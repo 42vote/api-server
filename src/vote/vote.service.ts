@@ -45,6 +45,18 @@ export class VoteService {
   async getVoteRich(search: SearchVoteDto) {
     const query = this.#getSearchQuery(search);
     query.setFindOptions({ relations: ['user', 'document'] });
+    query.select([
+      'vote.id',
+      'vote.createdAt',
+      'user.id',
+      'user.intraId',
+      'user.isAdmin',
+      'user.email',
+      'user.wallet',
+      'document.id',
+      'document.title',
+      'document.createdAt',
+    ]);
     return await query.getMany();
   }
 }

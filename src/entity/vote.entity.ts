@@ -19,5 +19,5 @@ export default class Vote {
   document: Document;
 
   @CreateDateColumn()
-  createAt: number;
+  createdAt: number;
 }
