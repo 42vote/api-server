@@ -21,8 +21,8 @@ export class DocumentService {
     private VoteRepo: Repository<Vote>,
   ) {}
 
-  async searchDoc(searchCriteria: SearchDocumentDto) {
-    const intraId = 'yachoi';
+  async searchDoc(searchCriteria: SearchDocumentDto, user: any) {
+    user.intraId;
     let documents: Document[] = [];
 
     if (searchCriteria.myPost === true) {
@@ -33,23 +33,31 @@ export class DocumentService {
           option: true,
         },
         where: {
-          author: { intraId: intraId },
+          author: { intraId: user.intraId },
         },
         order: { id: 'DESC' },
+		skip: searchCriteria.listIndex * 5,
+		take: searchCriteria.listSize,
       });
     } else if (searchCriteria.myVote === true) {
       const votes = await this.VoteRepo.find({
         relations: {
           user: true,
-          document: { option: true },
+          document: { 
+			option: true,
+			votes: true,
+			},
         },
         where: {
-          user: { intraId: intraId },
+          user: { intraId: user.intraId },
         },
+		order: { id: 'DESC' },
+		skip: searchCriteria.listIndex * 5,
+		take: searchCriteria.listSize,
       });
       documents = votes
         .map((vote) => vote.document)
-        .sort((a, b) => b.id - a.id);
+
     } else if (searchCriteria.categoryId !== 0) {
       documents = await this.DocRepo.find({
         relations: {
@@ -59,13 +67,11 @@ export class DocumentService {
         },
         where: { category: { id: searchCriteria.categoryId } },
         order: { id: 'DESC' },
+		skip: searchCriteria.listIndex * 5,
+		take: searchCriteria.listSize,
       });
     }
 
-    documents.slice(
-      searchCriteria.listIndex * 5,
-      searchCriteria.listIndex * 5 + searchCriteria.listSize,
-    );
 
     return documents.map((doc) => ({
       id: doc.id,

@@ -15,7 +15,7 @@ import SearchDocumentDto from './dto/search-document.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('document')
-// @UseGuards(AuthGuard)
+@UseGuards(AuthGuard)
 export class DocumentController {
   constructor(readonly docService: DocumentService) {}
 
@@ -26,6 +26,7 @@ export class DocumentController {
     @Query('listSize') listSize: number = 5,
     @Query('myPost') myPost: string = 'false',
     @Query('myVote') myVote: string = 'false',
+    @Req() token: Request,
   ) {
     const searchDto = new SearchDocumentDto();
     searchDto.categoryId = categoryId;
@@ -34,7 +35,7 @@ export class DocumentController {
     searchDto.myPost = myPost === 'true' ? true : false;
     searchDto.myVote = myVote === 'true' ? true : false;
 
-    return this.docService.searchDoc(searchDto);
+    return this.docService.searchDoc(searchDto, token['user']);
   }
 
   @Get(':document_id')
