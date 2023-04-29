@@ -35,7 +35,7 @@ export class UserController {
   }
 
   @Post('login')
-  async login(@Req() req, @Body('code') code: string, @Res() res: Response) {
+  async login(@Req() req, @Body('code') code: string) {
     const rawUser = await this.authService.getUserInfoFrom42(
       code,
       req.headers.referer,
@@ -46,23 +46,32 @@ export class UserController {
     else this.userService.updateUser(user);
     if (user == null) throw new InternalServerErrorException('not found user');
     const token = await this.authService.createToken(user);
-    res.cookie('access_token', token.access_token, {
-      maxAge: +process.env.JWT_AGE * 1000,
-      httpOnly: true,
-      //   sameSite: 'none',
-      //   secure: true,
+    if (token == null) throw new InternalServerErrorException('asdf');
+    this.userService.updateUser({
+      ...user,
+      jwtRefreshToken: token.refresh_token,
     });
-    res.json({ token });
+    return { token };
+  }
+
+  @Post('refresh')
+  async refresh(@Body('refresh_token') refreshToken: string) {
+    let payload = null;
+    try {
+      payload = await this.authService.verifyRefreshToken(refreshToken);
+    } catch (e) {
+      throw new UnauthorizedException();
+    }
+    const user = await this.userService.getUser(payload.intraId);
+    if (user == null || user.jwtRefreshToken !== refreshToken)
+      throw new UnauthorizedException();
+    const token = await this.authService.createToken(user);
+    delete token.refresh_token;
+    return { token };
   }
 
   @Post('logout')
-  async logout(@Req() req, @Res() res: Response) {
-    res.cookie('access_token', null, {
-      maxAge: +process.env.JWT_AGE * 1000,
-      httpOnly: true,
-      //   sameSite: 'none',
-      //   secure: true,
-    });
+  async logout(@Res() res: Response) {
     res.json({ message: 'success logout' });
   }
 

@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import * as dotenv from 'dotenv';
 import User from 'src/entity/user.entity';
 
+dotenv.config();
 @Injectable()
 export class AuthService {
   constructor(private jwtService: JwtService) {}
@@ -62,13 +64,40 @@ export class AuthService {
   }
 
   async createToken(user: User) {
-    const payload = {
-      userId: user.id,
-      intraId: user.intraId,
-      isAdmin: user.isAdmin,
-      wallet: user.wallet,
-    };
-    const token = await this.jwtService.signAsync(payload);
-    return { access_token: token };
+    try {
+      const payload = {
+        userId: user.id,
+        intraId: user.intraId,
+        isAdmin: user.isAdmin,
+        wallet: user.wallet,
+      };
+      const access_token = await this.jwtService.signAsync(payload, {
+        secret: process.env.JWT_ACCESS_SECRET,
+        expiresIn: process.env.JWT_ACCESS_AGE,
+      });
+      const refresh_payload = {
+        intraId: user.intraId,
+      };
+      const refresh_token = await this.jwtService.signAsync(refresh_payload, {
+        secret: process.env.JWT_REFRESH_SECRET,
+        expiresIn: process.env.JWT_REFRESH_AGE,
+      });
+      return { access_token, refresh_token };
+    } catch (e) {
+      console.log('auth.service', e);
+      return null;
+    }
+  }
+
+  async verifyAccessToken(token: string) {
+    return await this.jwtService.verifyAsync(token, {
+      secret: process.env.JWT_ACCESS_SECRET,
+    });
+  }
+
+  async verifyRefreshToken(token: string) {
+    return await this.jwtService.verifyAsync(token, {
+      secret: process.env.JWT_REFRESH_SECRET,
+    });
   }
 }

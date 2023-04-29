@@ -5,7 +5,9 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import * as dotenv from 'dotenv';
 
+dotenv.config();
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(private jwtService: JwtService) {}
@@ -18,10 +20,13 @@ export class AuthGuard implements CanActivate {
     if (type?.toLowerCase() !== 'Bearer'.toLowerCase() || token == null)
       throw new UnauthorizedException();
     try {
-      const payload = await this.jwtService.verifyAsync(token);
-      req.user = payload;
+      req.user = await this.jwtService.verifyAsync(token, {
+        secret: process.env.JWT_ACCESS_SECRET,
+      });
       return true;
     } catch (e) {
+      if (e.message === 'jwt expired')
+        throw new UnauthorizedException(e.message);
       throw new UnauthorizedException();
     }
   }

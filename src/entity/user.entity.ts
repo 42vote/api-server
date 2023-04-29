@@ -46,4 +46,7 @@ export default class User {
 
   @OneToMany(() => Vote, (vote) => vote.user)
   votes: Vote[];
+
+  @Column()
+  jwtRefreshToken: string;
 }

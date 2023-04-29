@@ -10,8 +10,6 @@ dotenv.config();
     ConfigModule,
     JwtModule.register({
       global: true,
-      secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: process.env.JWT_AGE + 's' },
     }),
   ],
   providers: [AuthService, ConfigService],
