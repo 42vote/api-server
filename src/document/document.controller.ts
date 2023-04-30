@@ -15,7 +15,6 @@ import { DocumentService } from './document.service';
 import CreateDocumentDto from './dto/create-document.dto';
 import SearchDocumentDto from './dto/search-document.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
-import { isNumberString } from 'class-validator';
 
 @Controller('document')
 @UseGuards(AuthGuard)
@@ -42,12 +41,7 @@ export class DocumentController {
   }
 
   @Post()
-  creatDocument(@Body() body: CreateDocumentDto, @Req() req: Request) {
-    console.log("here");
-    console.log(body);
-    console.log(typeof body.title);
-    console.log(typeof body.context);
-    console.log(typeof body.categoryId);
+  creatDocument(@Body() body: any, @Req() req: Request) {
 
     return this.docService.createDoc(body, req['user']);
   }

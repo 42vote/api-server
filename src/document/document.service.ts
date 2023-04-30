@@ -110,8 +110,7 @@ export class DocumentService {
     const timeNow = new Date();
     timeNow.setDate(timeNow.getDate() + 7);
   
-    if (body.categoryId = 5 && body.goal) {
-      console.log("here");
+    if (body.categoryId === 5 && body.goal) {
       docOption = await this.DocOpRepo.save({
         goal: body.goal,
         voteExpire: new Date(),

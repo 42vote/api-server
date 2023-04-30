@@ -17,11 +17,11 @@ export default class CreateCategoryDto {
   anonymousVote: boolean;
 
   @IsOptional()
-  @IsDate()
+  @IsString()
   voteExpire?: Date;
 
   @IsOptional()
-  @IsDate()
+  @IsString()
   docExpire?: Date;
 
   @IsOptional()
