@@ -36,21 +36,20 @@ export class DocumentController {
   @Get(':document_id')
   detailDocument(
     @Param('document_id') documentId: number,
-    @Req() req: Request,
+    @Req() token: Request,
   ) {
-    return this.docService.detailDoc(documentId);
+    return this.docService.detailDoc(documentId, token['user']);
   }
 
   @Post()
-  // creatDocument(@Body() body: CreateDocumentDto, @Req() req: Requeust ) {
-  creatDocument(@Body() body: CreateDocumentDto) {
-    const token = {
-      intraId: 'yachoi',
-      isAdmin: false,
-      wallet: 10,
-    };
-    return this.docService.createDoc(body, token);
-    // return this.docService.createDoc(body, req);
+  creatDocument(@Body() body: CreateDocumentDto, @Req() req: Request) {
+    console.log("here");
+    console.log(body);
+    console.log(typeof body.title);
+    console.log(typeof body.context);
+    console.log(typeof body.categoryId);
+
+    return this.docService.createDoc(body, req['user']);
   }
 
   @Delete(':document_id')

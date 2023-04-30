@@ -78,7 +78,7 @@ export class DocumentService {
     }));
   }
 
-  async detailDoc(documentId: number) {
+  async detailDoc(documentId: number, user: any) {
     const document = await this.DocRepo.findOne({
       where: { id: documentId },
       relations: {
@@ -93,8 +93,8 @@ export class DocumentService {
       id: document.id,
       title: document.title,
       content: document.context,
-      author: 'yachoi', // neet to change
-      isAuthor: false, // always bool at the moment(04/19)
+      author: document.author.intraId,
+      isAuthor: document.author.intraId === user.intraId,
       categoryId: document.category.id,
       createAt: document.createdAt,
       voteExpiredAt: document.option.voteExpire,
@@ -105,16 +105,17 @@ export class DocumentService {
     };
   }
 
-  async createDoc(body: CreateDocumentDto, token) {
+  async createDoc(body: CreateDocumentDto, user) {
     let docOption;
-    const docExpire = new Date(body.voteExpire);
-    docExpire.setDate(docExpire.getDate() + 7);
-
-    if (body.goal && body.voteExpire) {
+    const timeNow = new Date();
+    timeNow.setDate(timeNow.getDate() + 7);
+  
+    if (body.categoryId = 5 && body.goal) {
+      console.log("here");
       docOption = await this.DocOpRepo.save({
         goal: body.goal,
-        voteExpire: body.voteExpire,
-        docExpire: docExpire, // set a default value for docExpire
+        voteExpire: new Date(),
+        docExpire: timeNow, // set a default value for docExpire
         category: { id: body.categoryId }, // set the category relationship
       });
     } else {
@@ -126,7 +127,7 @@ export class DocumentService {
     const document = this.DocRepo.create({
       ...body,
       option: docOption,
-      //   author: { id: token.intraId },
+      author: { id: user.userId },
       category: { id: body.categoryId }, // set the category relationship
     });
 

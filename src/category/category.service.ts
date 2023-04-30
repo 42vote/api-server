@@ -15,13 +15,7 @@ export class CategoryService {
     private CatRepo: Repository<Category>,
     @InjectRepository(DocOption)
     private DocOpRepo: Repository<DocOption>,
-  ) {
-    // @InjectRepository(Category)
-    // private CatRepo: Repository<Category>
-    // this.CatRepo = AppDataSource.getRepository(Category);
-    // this.DocOpRepo = AppDataSource.getRepository(DocOption);
-    // dotenv.config();
-  }
+  ) {}
   async searchCat(expired: string) {
     let query = this.CatRepo.createQueryBuilder('category');
 
@@ -39,7 +33,7 @@ export class CategoryService {
     return categories.map((category) => ({
       id: category.category_id,
       title: category.category_title,
-      expired: category.category_expired === 1 ? true : false,
+      expired: category.category_expired === true ? true : false,
     }));
   }
 
