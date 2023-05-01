@@ -74,7 +74,7 @@ export class DocumentService {
       title: doc.title,
       goal: doc.option.goal,
       voteCnt: doc.votes.length,
-      voteExpired: doc.option.voteExpire < new Date(),
+      isVoteExpired: doc.option.voteExpire < new Date(),
     }));
   }
 
