@@ -61,4 +61,13 @@ export class CategoryService {
     // return the saved category object
     return JSON.stringify(savedCategory); // return JSON for test for now
   }
+
+  async sizeCat(categoryId: number) {
+    const category = await this.CatRepo.findOneOrFail({
+      where: { id: categoryId},
+      relations: { documents: true },
+    });
+  
+    return Math.ceil(category.documents.length / 5); // round up by 5
+  }
 }

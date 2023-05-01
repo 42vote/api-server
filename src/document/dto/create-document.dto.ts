@@ -1,18 +1,16 @@
 import { IsString, IsDate, IsInt, IsOptional } from 'class-validator';
 
 export default class CreateDocumentDto {
-  // @IsString()
+  @IsString()
   title: string;
 
-  // @IsString()
+  @IsString()
   context: string;
 
-  // @IsInt()
+  @IsInt()
   categoryId: number;
 
-  // @IsOptional()
-  // @IsInt()
+  @IsOptional()
+  @IsInt()
   goal?: number;
 }
-
-

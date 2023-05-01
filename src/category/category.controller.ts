@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import CreateCategoryDto from './dto/create-category.dot';
 import { AuthGuard } from 'src/auth/auth.guard';
@@ -16,5 +16,10 @@ export class CategoryController {
   @Post()
   creatCategory(@Body() body: CreateCategoryDto) {
     return this.catService.createCat(body);
+  }
+
+  @Get('size/:categoryId')
+  sizeCategory(@Param('categoryId') categoryId: number) {
+    return this.catService.sizeCat(categoryId);
   }
 }
