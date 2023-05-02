@@ -48,14 +48,19 @@ export class VoteController {
   async postVote(@Req() req, @Body() body: CreateVoteDto) {
     const intraId = req.user.intraId;
     if (intraId == null) throw new InternalServerErrorException();
-    const vote = await this.voteService.getVoteRich({
+    const searchVoteDto = {
       intraId,
       documentId: body.documentId,
-    });
+    };
+    const vote = await this.voteService.getVoteRich(searchVoteDto);
     if (vote.length !== 0) return;
     const user = await this.userService.getUser(intraId);
     const document = await this.documentService.getDocument(body.documentId);
     await this.voteService.vote(user, document);
+    const votes = await this.voteService.getVote(searchVoteDto);
+    for (let i = 1; i < votes.length; i++) {
+      this.voteService.deleteVote(votes[i]);
+    }
   }
 
   @Delete('me')
