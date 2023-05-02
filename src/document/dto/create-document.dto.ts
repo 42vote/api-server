@@ -1,4 +1,4 @@
-import { IsString, IsDate, IsInt, IsOptional } from 'class-validator';
+import { IsString, IsDate, IsInt, IsOptional, ArrayMinSize, ArrayMaxSize } from 'class-validator';
 
 export default class CreateDocumentDto {
   @IsString()
@@ -13,4 +13,9 @@ export default class CreateDocumentDto {
   @IsOptional()
   @IsInt()
   goal?: number;
+
+  @IsString({ each: true })
+  @ArrayMinSize(1)
+  @ArrayMaxSize(5)
+  images: string[];
 }

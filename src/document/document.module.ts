@@ -23,7 +23,7 @@ import { UserModule } from 'src/user/user.module';
       Vote,
       Image,
     ]),
-    // AwsS3Module,
+    AwsS3Module,
     UserModule,
   ],
   providers: [DocumentService],

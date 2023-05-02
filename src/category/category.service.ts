@@ -64,10 +64,12 @@ export class CategoryService {
 
   async sizeCat(categoryId: number) {
     const category = await this.CatRepo.findOneOrFail({
-      where: { id: categoryId},
+      where: { id: categoryId },
       relations: { documents: true },
     });
-  
-    return Math.ceil(category.documents.length / 5); // round up by 5
+
+    return {
+      categorySize: Math.ceil(category.documents.length / 5) - 1, // round up by 5
+    };
   }
 }

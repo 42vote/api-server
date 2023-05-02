@@ -7,9 +7,13 @@ import Category from 'src/entity/category.entity';
 import DocOption from 'src/entity/doc-option.entity';
 import Document from 'src/entity/document.entity';
 import Vote from 'src/entity/vote.entity';
+import { AwsS3Service } from 'src/aws-s3/aws-s3.service'
 
 @Injectable()
 export class DocumentService {
+
+  private readonly imageService: AwsS3Service;
+
   constructor(
     @InjectRepository(Category)
     private CatRepo: Repository<Category>,
@@ -19,7 +23,9 @@ export class DocumentService {
     private DocRepo: Repository<Document>,
     @InjectRepository(Vote)
     private VoteRepo: Repository<Vote>,
-  ) {}
+  ) {
+    this.imageService = new AwsS3Service();
+  }
 
   async searchDoc(searchCriteria: SearchDocumentDto, user: any) {
     let documents: Document[] = [];
@@ -74,7 +80,8 @@ export class DocumentService {
       title: doc.title,
       goal: doc.option.goal,
       voteCnt: doc.votes.length,
-      isVoteExpired: doc.option.voteExpire < new Date(),
+      voteExpired: doc.option.voteExpire < new Date(),
+      image: 'https://i1.ruliweb.com/thumb/23/04/07/1875af7eea934d9e5.jpg'
     }));
   }
 
@@ -102,6 +109,7 @@ export class DocumentService {
       voteCnt: document.votes.length,
       isVote: false, // need to change
       isVoteExpired: document.option.voteExpire < new Date() ? true : false,
+      image: ['https://i1.ruliweb.com/thumb/23/04/07/1875af7eea934d9e5.jpg', 'https://ccdn.lezhin.com/v2/comics/5469317090312192/images/tall.jpg?updated=1634099797967&width=840', 'https://tvstore-phinf.pstatic.net/20230413_238/16813549589071Xlji_JPEG/00041.jpg']
     };
   }
 
@@ -124,11 +132,19 @@ export class DocumentService {
     }
 
     const document = this.DocRepo.create({
-      ...body,
+      title: body.title,
+      context: body.context,
       option: docOption,
       author: { id: user.userId },
       category: { id: body.categoryId }, // set the category relationship
     });
+
+    const images = body.images;
+    for (let i = 0; i < images.length; i++) {
+      const filename = `${body.title}/image_${i}`;
+      const context = images[i]; 
+      await this.imageService.uploadOne(filename, context);
+    }
 
     return this.DocRepo.save(document);
   }
