@@ -3,6 +3,7 @@
 TARGET = app.zip
 SRC = dist/ \
 		package.json \
+		package-lock.json \
 		Procfile
 
 $(TARGET): $(SRC)
