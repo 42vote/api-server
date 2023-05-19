@@ -23,10 +23,9 @@ export class DocumentController {
 
   @Get()
   searchDocument(
-    @Query(
-      new ValidationPipe({ exceptionFactory: () => new BadRequestException() }),
-    )
-    searchDto: SearchDocumentDto,
+    @Query() searchDto: SearchDocumentDto,
+    //   new ValidationPipe({ exceptionFactory: () => new BadRequestException() }),
+    // )
     @Req() token: Request,
   ) {
     return this.docService.searchDoc(searchDto, token['user']);
@@ -42,7 +41,6 @@ export class DocumentController {
 
   @Post()
   creatDocument(@Body() body: any, @Req() req: Request) {
-
     return this.docService.createDoc(body, req['user']);
   }
 

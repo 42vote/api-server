@@ -1,4 +1,4 @@
-import { Module, ValidationPipe } from '@nestjs/common';
+import { Module, ValidationPipe, forwardRef } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import User from 'src/entity/user.entity';
@@ -14,7 +14,7 @@ import { APP_PIPE } from '@nestjs/core';
   imports: [
     ConfigModule,
     TypeOrmModule.forFeature([User, Document, Vote]),
-    DocumentModule,
+    forwardRef(() => DocumentModule),
     UserModule,
   ],
   controllers: [VoteController],
@@ -30,5 +30,6 @@ import { APP_PIPE } from '@nestjs/core';
         }),
     },
   ],
+  exports: [VoteService],
 })
 export class VoteModule {}

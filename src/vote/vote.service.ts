@@ -15,7 +15,6 @@ export class VoteService {
   }
 
   async vote(user: User, document: Document) {
-    console.log(user, document);
     const vote = {
       user,
       document,

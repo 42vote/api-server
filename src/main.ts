@@ -5,6 +5,7 @@ import { NextFunction, Request } from 'express';
 import rateLimit from 'express-rate-limit';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app.module';
+import * as express from 'express';
 
 const cookieAuth = (req: Request, res: Response, next: NextFunction) => {
   req.headers['Authorization'] = req.get('Authorization');
@@ -27,6 +28,8 @@ async function bootstrap() {
     ],
     credentials: true,
   });
+  app.use(express.json({limit: '50mb'}));
+  app.use(express.urlencoded({limit: '50mb'}));
   app.use(
     rateLimit({
       windowMs: 10 * 60 * 1000, // 10 minutes
@@ -41,5 +44,6 @@ async function bootstrap() {
   app.use(cookieAuth);
   // await app.listen(process.env.PORT || 3000);
   await app.listen(configService.get('PORT') || 3000);
+
 }
 bootstrap();
