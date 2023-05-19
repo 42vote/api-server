@@ -11,6 +11,7 @@ import { AwsS3Service } from 'src/aws-s3/aws-s3.service';
 import { VoteService } from 'src/vote/vote.service';
 import SearchVoteDto from 'src/vote/dto/search-vote.dto';
 import Image from 'src/entity/image.entity';
+import { doc } from 'prettier';
 
 @Injectable()
 export class DocumentService {
@@ -38,6 +39,7 @@ export class DocumentService {
           author: true,
           votes: true,
           option: true,
+          images: true,
         },
         where: {
           author: { intraId: user.intraId },
@@ -53,6 +55,7 @@ export class DocumentService {
           document: {
             option: true,
             votes: true,
+            images: true,
           },
         },
         where: {
@@ -69,6 +72,7 @@ export class DocumentService {
           category: true,
           option: true,
           votes: true,
+          images: true,
         },
         where: { category: { id: searchCriteria.categoryId } },
         order: { id: 'DESC' },
@@ -77,13 +81,14 @@ export class DocumentService {
       });
     }
 
+
     return documents.map((doc) => ({
       id: doc.id,
       title: doc.title,
       goal: doc.option.goal,
       voteCnt: doc.votes.length,
       voteExpired: doc.option.voteExpire < new Date(),
-      image: 'https://i1.ruliweb.com/thumb/23/04/07/1875af7eea934d9e5.jpg',
+      image: doc.images[0] ? doc.images[0].directory : null
     }));
   }
 
