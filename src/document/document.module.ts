@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DocumentService } from './document.service';
@@ -11,6 +11,8 @@ import Vote from 'src/entity/vote.entity';
 import { AwsS3Module } from 'src/aws-s3/aws-s3.module';
 import Image from 'src/entity/image.entity';
 import { UserModule } from 'src/user/user.module';
+import { VoteModule } from 'src/vote/vote.module';
+import { VoteService } from 'src/vote/vote.service';
 
 @Module({
   imports: [
@@ -25,6 +27,7 @@ import { UserModule } from 'src/user/user.module';
     ]),
     AwsS3Module,
     UserModule,
+    forwardRef(() => VoteModule),
   ],
   providers: [DocumentService],
   controllers: [DocumentController],
