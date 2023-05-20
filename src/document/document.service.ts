@@ -170,6 +170,7 @@ export class DocumentService {
     const images = body.images;
     for (let i = 0; i < images.length; i++) {
       const filename = `${saveDoc.id}/image_${i}`;
+      // const binaryImage = Buffer.from(images[i], 'base64');
       const directory = await this.imageService.uploadOne(filename, images[i]);
       if (directory) {
         const image = this.ImageRepo.create({
@@ -177,8 +178,7 @@ export class DocumentService {
           directory: directory,
           filename: `image_${i}`,
         })
-        const test = await this.ImageRepo.save(image);
-        console.log(test);
+        await this.ImageRepo.save(image);
       }
     }
 

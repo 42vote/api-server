@@ -5,7 +5,7 @@ export default class SearchDocumentDto {
   @IsInt()
   @Min(0)
   @Transform(({ value }) => parseInt(value, 10))
-  categoryId: number = 0;
+  categoryId: number = 5;
 
   @IsInt()
   @Min(0)
