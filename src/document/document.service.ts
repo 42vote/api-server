@@ -100,13 +100,14 @@ export class DocumentService {
         votes: true,
         option: true,
         category: true,
+        images: true,
       },
     });
     if (!document) {
       throw new NotFoundException(`Document with ID ${documentId} not found`);
     }
     // await new Promie(resolve => setTimeout(resolve, 10000));
-
+    
     return {
       id: document.id,
       title: document.title,
@@ -127,11 +128,7 @@ export class DocumentService {
           })
         ).length !== 0, // need to change
       isVoteExpired: document.option.voteExpire < new Date() ? true : false,
-      image: [
-        'https://i1.ruliweb.com/thumb/23/04/07/1875af7eea934d9e5.jpg',
-        'https://ccdn.lezhin.com/v2/comics/5469317090312192/images/tall.jpg?updated=1634099797967&width=840',
-        'https://tvstore-phinf.pstatic.net/20230413_238/16813549589071Xlji_JPEG/00041.jpg',
-      ],
+      image: document.images.map((image) => image.directory)
     };
   }
 
