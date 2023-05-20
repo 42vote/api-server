@@ -16,10 +16,14 @@ export class AwsS3Service {
   }
 
   async uploadOne(filename: string, context: string): Promise<string> {
+    const mimeType = context.split(';')[0].split(':')[1];
+    const imageBuffer = Buffer.from(context.split(',')[1], 'base64');
+
     const params = {
       Bucket: process.env.AWS_S3_BUCKET,
       Key: filename,
-      Body: context,
+      Body: imageBuffer,
+      ContentType: mimeType
     };
     const result = await this.s3.upload(params).promise();
     return result.Location;

@@ -3,21 +3,26 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import Category from 'src/entity/category.entity';
 import DocOption from 'src/entity/doc-option.entity';
-import CreateCategoryDto from './dto/create-category.dot';
+import CreateCategoryDto from './dto/create-category.dto';
 import SearchCategoryDto from './dto/search-category.dto';
+import SizeCategoryDto from './dto/size-category.dto';
+import Vote from 'src/entity/vote.entity';
+import User from 'src/entity/user.entity';
+import Document from 'src/entity/document.entity';
 
 @Injectable()
 export class CategoryService {
-  // private CatRepo: Repository<Category>;
-  // private DocOpRepo: Repository<DocOption>;
   constructor(
+
     @InjectRepository(Category)
-    private CatRepo: Repository<Category>,
+    private catRepo: Repository<Category>,
     @InjectRepository(DocOption)
-    private DocOpRepo: Repository<DocOption>,
+    private docOpRepo: Repository<DocOption>,
+    @InjectRepository(Document)
+    private docRepo: Repository<Document>,
   ) {}
   async searchCat(expired: string) {
-    let query = this.CatRepo.createQueryBuilder('category');
+    let query = this.catRepo.createQueryBuilder('category');
 
     if (expired !== 'all') {
       const expiredBool = expired === 'true' ? true : false;
@@ -46,7 +51,7 @@ export class CategoryService {
     category.anonymousVote = body.anonymousVote;
 
     // save the category to the database
-    const savedCategory = await this.CatRepo.save(category);
+    const savedCategory = await this.catRepo.save(category);
 
     // create a new doc option object from the DTO
     const docOption = new DocOption();
@@ -56,20 +61,34 @@ export class CategoryService {
     docOption.category = savedCategory;
 
     // save the doc option to the database
-    await this.DocOpRepo.save(docOption);
+    await this.docOpRepo.save(docOption);
 
     // return the saved category object
     return JSON.stringify(savedCategory); // return JSON for test for now
   }
 
-  async sizeCat(categoryId: number) {
-    const category = await this.CatRepo.findOneOrFail({
-      where: { id: categoryId },
-      relations: { documents: true },
-    });
+  async sizeCat(query: SizeCategoryDto, user: any) {
+    let length;
 
+    if (query.myPost === 'true') {
+      length = await this.docRepo.count({
+        relations: { author: true },
+        where: { author: { id: user.userId } },
+      });
+    } else if (query.myVote === 'true') {
+      length = await this.docRepo.count({
+        relations: { votes : true },
+        where: { votes : { id: user.userId } },
+      });
+    } else {
+      length = await this.docRepo.count({
+        relations: { category: true },
+        where: { category: { id: query.categoryId} },
+      });
+    }
+    console.log(length);
     return {
-      categorySize: Math.ceil(category.documents.length / 5) - 1, // round up by 5
+      categorySize: Math.ceil(length / 5) - 1, // round up by 5
     };
   }
 }
