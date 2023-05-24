@@ -33,7 +33,7 @@ export default class Category {
   updatedAt: Date;
 
   @OneToMany(() => DocOption, (docOption) => docOption.category)
-  docOption: DocOption;
+  docOption: DocOption[];
 
   @OneToMany(() => Document, (document) => document.category)
   documents: Document[];

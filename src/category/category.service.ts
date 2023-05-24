@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { Not, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import Category from 'src/entity/category.entity';
 import DocOption from 'src/entity/doc-option.entity';
@@ -13,7 +13,6 @@ import Document from 'src/entity/document.entity';
 @Injectable()
 export class CategoryService {
   constructor(
-
     @InjectRepository(Category)
     private catRepo: Repository<Category>,
     @InjectRepository(DocOption)
@@ -22,23 +21,55 @@ export class CategoryService {
     private docRepo: Repository<Document>,
   ) {}
   async searchCat(expired: string) {
-    let query = this.catRepo.createQueryBuilder('category');
+    // let query = this.catRepo.createQueryBuilder('category');
 
-    if (expired !== 'all') {
-      const expiredBool = expired === 'true' ? true : false;
-      query = query.where('category.expired = :expired', {
-        expired: expiredBool,
+    // if (expired !== 'all') {
+    //   const expiredBool = expired === 'true' ? true : false;
+    //   query = query.where('category.expired = :expired', {
+    //     expired: expiredBool,
+    //   });
+    // }
+
+    // const categories = await query
+    //   .select([
+    //     'category.id',
+    //     'category.title',
+    //     'category.expired',
+    //     'caregory.docOption',
+    //   ])
+    //   .getRawMany();
+
+    let categories: Category[] = [];
+
+    if (expired === 'all') {
+      categories = await this.catRepo.find({
+        where: {
+          id: Not(5), // Exclude the category with ID 5
+        },
+        relations: { docOption: true },
+      });
+    } else {
+      categories = await this.catRepo.find({
+        where: {
+          id: Not(5), // Exclude the category with ID 5
+          expired: expired === 'true' ? true : false
+        },
+        relations: { docOption: true },
       });
     }
-
-    const categories = await query
-      .select(['category.id', 'category.title', 'category.expired'])
-      .getRawMany();
+    if (expired !== 'true'){
+      const goods = await this.catRepo.findOne({ where: { id: 5 } });
+        if (goods) {
+          categories.push(goods);
+        }
+    }
 
     return categories.map((category) => ({
-      id: category.category_id,
-      title: category.category_title,
-      expired: category.category_expired === true ? true : false,
+      id: category.id,
+      title: category.title,
+      goalSettable: category.id === 5 ? true : false,
+      goal: category.id === 5 ? 0 : category.docOption[0].goal,
+      expired: category.expired === true ? true : false,
     }));
   }
 
@@ -77,13 +108,13 @@ export class CategoryService {
       });
     } else if (query.myVote === 'true') {
       length = await this.docRepo.count({
-        relations: { votes : true },
-        where: { votes : { id: user.userId } },
+        relations: { votes: true },
+        where: { votes: { id: user.userId } },
       });
     } else {
       length = await this.docRepo.count({
         relations: { category: true },
-        where: { category: { id: query.categoryId} },
+        where: { category: { id: query.categoryId } },
       });
     }
     console.log(length);
