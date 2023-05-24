@@ -107,7 +107,7 @@ export class DocumentService {
       throw new NotFoundException(`Document with ID ${documentId} not found`);
     }
     // await new Promie(resolve => setTimeout(resolve, 10000));
-    
+
     return {
       id: document.id,
       title: document.title,
@@ -164,10 +164,9 @@ export class DocumentService {
     const saveDoc = await this.DocRepo.save(document);
 
     console.log(saveDoc.id);
-    const images = body.images;
+    const images = body.image;
     for (let i = 0; i < images.length; i++) {
       const filename = `${saveDoc.id}/image_${i}`;
-      // const binaryImage = Buffer.from(images[i], 'base64');
       const directory = await this.imageService.uploadOne(filename, images[i]);
       if (directory) {
         const image = this.ImageRepo.create({
@@ -185,12 +184,12 @@ export class DocumentService {
   async deleteDoc(documentId: number) {
     const document = await this.DocRepo.findOne({
       where: { id: documentId },
-      relations: ['option', 'category'],
+      relations: ['option', 'category', 'images'],
     });
     if (!document) {
       throw new NotFoundException(`Document with ID ${documentId} not found`);
     }
-
+    await this.ImageRepo.remove(document.images);
     await this.DocRepo.remove(document);
     // delete docOption if category is "goods or 5"
     if (document.category.id === 5) {
