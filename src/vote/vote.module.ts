@@ -18,18 +18,7 @@ import { APP_PIPE } from '@nestjs/core';
     UserModule,
   ],
   controllers: [VoteController],
-  providers: [
-    VoteService,
-    {
-      provide: APP_PIPE,
-      useFactory: () =>
-        new ValidationPipe({
-          whitelist: true,
-          forbidNonWhitelisted: true,
-          transform: true,
-        }),
-    },
-  ],
+  providers: [VoteService],
   exports: [VoteService],
 })
 export class VoteModule {}
