@@ -7,16 +7,19 @@ import CreateCategoryDto from './dto/create-category.dto';
 import SizeCategoryDto from './dto/size-category.dto';
 import Document from 'src/entity/document.entity';
 import { ConfigService } from '@nestjs/config';
+import Vote from 'src/entity/vote.entity';
 
 @Injectable()
 export class CategoryService {
   constructor(
     @InjectRepository(Category)
-    private catRepo: Repository<Category>,
+    private categoryRepo: Repository<Category>,
     @InjectRepository(DocOption)
-    private docOpRepo: Repository<DocOption>,
+    private documentOptionRepo: Repository<DocOption>,
     @InjectRepository(Document)
-    private docRepo: Repository<Document>,
+    private documentRepo: Repository<Document>,
+    @InjectRepository(Vote)
+    private voteRepo: Repository<Vote>,
     private configService: ConfigService,
   ) {
     this.goodsCategoryId = Number(
@@ -29,14 +32,14 @@ export class CategoryService {
     let categories: Category[] = [];
 
     if (expired === 'all') {
-      categories = await this.catRepo.find({
+      categories = await this.categoryRepo.find({
         where: {
           id: Not(this.goodsCategoryId), // Exclude the category with ID 5
         },
         relations: { docOption: true },
       });
     } else {
-      categories = await this.catRepo.find({
+      categories = await this.categoryRepo.find({
         where: {
           id: Not(this.goodsCategoryId), // Exclude the category with ID 5
           expired: expired === 'true' ? true : false,
@@ -45,7 +48,7 @@ export class CategoryService {
       });
     }
     if (expired !== 'true') {
-      const goods = await this.catRepo.findOne({
+      const goods = await this.categoryRepo.findOne({
         where: { id: this.goodsCategoryId },
       });
       if (goods) {
@@ -71,7 +74,7 @@ export class CategoryService {
     category.anonymousVote = body.anonymousVote;
 
     // save the category to the database
-    const savedCategory = await this.catRepo.save(category);
+    const savedCategory = await this.categoryRepo.save(category);
 
     // create a new doc option object from the DTO
     const docOption = new DocOption();
@@ -81,27 +84,27 @@ export class CategoryService {
     docOption.category = savedCategory;
 
     // save the doc option to the database
-    await this.docOpRepo.save(docOption);
+    await this.documentOptionRepo.save(docOption);
 
     // return the saved category object
     return JSON.stringify(savedCategory); // return JSON for test for now
   }
 
-  async sizeCategory(query: SizeCategoryDto, user: any) {
+  async sizeCategory(query: SizeCategoryDto, userId: number) {
     let length;
 
     if (query.myPost === 'true') {
-      length = await this.docRepo.count({
+      length = await this.documentRepo.count({
         relations: { author: true },
-        where: { author: { id: user.userId } },
+        where: { author: { id: userId } },
       });
     } else if (query.myVote === 'true') {
-      length = await this.docRepo.count({
-        relations: { votes: true },
-        where: { votes: { id: user.userId } },
+      length = await this.voteRepo.count({
+        relations: { user: true },
+        where: { user: { id: userId } },
       });
     } else {
-      length = await this.docRepo.count({
+      length = await this.documentRepo.count({
         relations: { category: true },
         where: { category: { id: query.categoryId } },
       });

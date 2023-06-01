@@ -30,6 +30,8 @@ export class CategoryController {
 
   @Get('size')
   sizeCategory(@Query() query: SizeCategoryDto, @Req() req: Request) {
-    return this.categoryService.sizeCategory(query, req['user']);
+    return this.categoryService.sizeCategory(query, req['user'].userId);
   }
+
+
 }
