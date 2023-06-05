@@ -1,5 +1,5 @@
-import { Injectable } from '@nestjs/common';
-import { Not, Repository } from 'typeorm';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { LessThan, MoreThanOrEqual, Not, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import Category from 'src/entity/category.entity';
 import DocOption from 'src/entity/doc-option.entity';
@@ -11,6 +11,9 @@ import Vote from 'src/entity/vote.entity';
 
 @Injectable()
 export class CategoryService {
+  // default category id
+  private readonly goodsCategoryId: number;
+
   constructor(
     @InjectRepository(Category)
     private categoryRepo: Repository<Category>,
@@ -22,31 +25,34 @@ export class CategoryService {
     private voteRepo: Repository<Vote>,
     private configService: ConfigService,
   ) {
-    this.goodsCategoryId = Number(
+    const goodsCategoryId = Number(
       this.configService.get<string>('GOODS_CATEGORY_ID'),
     );
+    if (isNaN(goodsCategoryId)) {
+      throw new InternalServerErrorException(
+        'GOODS_CATEGORY_ID is not set or invalid.',
+      );
+    }
+    this.goodsCategoryId = goodsCategoryId;
   }
-  private readonly goodsCategoryId: number;
 
   async searchCategory(expired: string) {
-    let categories: Category[] = [];
-
-    if (expired === 'all') {
-      categories = await this.categoryRepo.find({
-        where: {
-          id: Not(this.goodsCategoryId), // Exclude the category with ID 5
-        },
-        relations: { docOption: true },
+    const categories = await this.categoryRepo.find({
+      where: {
+        id: Not(this.goodsCategoryId),
+      },
+      relations: { docOption: true },
+    });
+    if (expired === 'true') {
+      categories.filter((category) => {
+        return category.docOption[0].docExpire < new Date();
       });
-    } else {
-      categories = await this.categoryRepo.find({
-        where: {
-          id: Not(this.goodsCategoryId), // Exclude the category with ID 5
-          expired: expired === 'true' ? true : false,
-        },
-        relations: { docOption: true },
+    } else if (expired === 'false') {
+      categories.filter((category) => {
+        return category.docOption[0].docExpire >= new Date();
       });
     }
+
     if (expired !== 'true') {
       const goods = await this.categoryRepo.findOne({
         where: { id: this.goodsCategoryId },
@@ -61,7 +67,12 @@ export class CategoryService {
       goalSettable: category.id === this.goodsCategoryId ? true : false,
       goal:
         category.id === this.goodsCategoryId ? 0 : category.docOption[0].goal,
-      expired: category.expired === true ? true : false,
+      expired:
+        category.id === this.goodsCategoryId
+          ? false
+          : category.docOption[0].docExpire < new Date()
+          ? true
+          : false,
     }));
   }
 
@@ -69,7 +80,6 @@ export class CategoryService {
     // create a new category object from the DTO
     const category = new Category();
     category.title = body.title;
-    category.expired = false;
     category.multipleVote = body.multipleVote;
     category.anonymousVote = body.anonymousVote;
 
