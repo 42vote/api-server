@@ -47,12 +47,20 @@ export class AuthService {
           Authorization: `Bearer ${token.access_token}`,
         },
       }).then((x) => x.json());
+      const coalitions = await fetch(`https://api.intra.42.fr/v2/users/${rawUser.login}/coalitions`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token.access_token}`,
+        },
+      }).then(x => x.json());
+      const coalition = coalitions[0]?.slug;
       const expireTime = (+token.expires_in - 200) * 1000;
       const accessTokenExpiredAt = new Date(new Date().getTime() + expireTime);
       return {
         intraId: rawUser.login,
         email: rawUser.email,
         wallet: rawUser.wallet,
+        coalition,
         accessToken: token.access_token,
         refreshToken: token.refresh_token,
         accessTokenExpiredAt,
