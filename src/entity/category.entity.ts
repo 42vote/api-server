@@ -18,9 +18,6 @@ export default class Category {
   title: string;
 
   @Column()
-  expired: boolean;
-
-  @Column()
   multipleVote: boolean;
 
   @Column()
