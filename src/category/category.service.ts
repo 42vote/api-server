@@ -135,4 +135,19 @@ export class CategoryService {
       where: { id: categoryId }
     })
   }
+
+  async deleteCategory(categoryId: number) {
+    if (categoryId === this.goodsCategoryId) {
+      return await this.categoryRepo.find({
+      })
+    }
+    const docOptions = await this.documentOptionRepo.find({ 
+      relations: { category: true},
+      where: { category: { id: categoryId }}
+     });
+
+     return this.documentOptionRepo.update(docOptions[0].id, {docExpire: new Date()});
+
+    // return await this.categoryRepo.delete(categoryId)
+  }
 }

@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -43,5 +44,15 @@ export class CategoryController {
       throw new BadRequestException('invalid category id');
     }
     return this.categoryService.detailCategory(categoryId);
+  }
+
+  @Delete(':categoryId')
+  deleteCategory(@Param('categoryId') categoryId: number) {
+    if (isNaN(categoryId)) {
+      console.log(categoryId);
+
+      throw new BadRequestException('invalid category id');
+    }
+    return this.categoryService.deleteCategory(categoryId);
   }
 }
