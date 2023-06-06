@@ -5,6 +5,7 @@ import Document from 'src/entity/document.entity';
 import User from 'src/entity/user.entity';
 import { Repository } from 'typeorm';
 import SearchVoteDto from './dto/search-vote.dto';
+import SearchParticipantDto from './dto/search-participant';
 
 @Injectable()
 export class VoteService {
@@ -57,5 +58,23 @@ export class VoteService {
       'document.createdAt',
     ]);
     return await query.getMany();
+  }
+
+  async getParticipant(search: SearchParticipantDto) {
+    const query = this.voteRepo
+      .createQueryBuilder('vote')
+      .innerJoin('vote.user', 'user')
+      .innerJoin('vote.document', 'document')
+      .where('1=1');
+    if (search.documentId != null)
+      query.andWhere('document.id = :documentId', search);
+    if (search.voterIntraId != null)
+      query.andWhere('user.intraId = :voterIntraId', search);
+    if (search.authorIntraId != null)
+      query.andWhere('user.intraId = :authorIntraId', search);
+    query.setFindOptions({ relations: ['user', 'document'] });
+    return await query
+      .select(['vote.id', 'vote.createdAt', 'user.intraId', 'document.id'])
+      .getMany();
   }
 }

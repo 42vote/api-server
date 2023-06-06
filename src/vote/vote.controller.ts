@@ -20,6 +20,7 @@ import SearchVoteDto from './dto/search-vote.dto';
 import { VoteService } from './vote.service';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { AuthAdminGuard } from 'src/auth/auth-admin.guard';
+import SearchParticipantDto from './dto/search-participant';
 
 @Controller('vote')
 export class VoteController {
@@ -33,6 +34,17 @@ export class VoteController {
   @UseGuards(AuthAdminGuard)
   async getVote(@Query() search: SearchVoteDto) {
     return await this.voteService.getVoteRich({ ...search });
+  }
+
+  @Get('participant')
+  @UseGuards(AuthGuard)
+  async getVotePatricipant(@Req() req, @Query() search: SearchParticipantDto) {
+    const intraId = req.user?.intraId;
+    if (intraId == null) throw new InternalServerErrorException();
+    return await this.voteService.getParticipant({
+      ...search,
+      authorIntraId: intraId,
+    });
   }
 
   @Get('me')
