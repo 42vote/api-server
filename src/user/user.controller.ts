@@ -43,7 +43,9 @@ export class UserController {
     if (rawUser == null) throw new UnauthorizedException(`error`);
     let user = await this.userService.getUser(rawUser.intraId);
     if (user == null) user = await this.userService.addUser(rawUser);
-    else this.userService.updateUser(user);
+    user.wallet = rawUser.wallet;
+    user.coalition = rawUser.coalition;
+    this.userService.updateUser(user);
     if (user == null) throw new InternalServerErrorException('not found user');
     const token = await this.authService.createToken(user);
     if (token == null) throw new InternalServerErrorException('asdf');
