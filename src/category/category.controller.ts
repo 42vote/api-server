@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Param,
   Post,
   Query,
   Req,
@@ -33,5 +34,11 @@ export class CategoryController {
     return this.categoryService.sizeCategory(query, req['user'].userId);
   }
 
-
+  // @Get(':categoryId')
+  // detailCategory(@Param('categoryId') categoryId: number) {
+  //   console.log(categoryId);
+  //   if (accumulate)
+  //   throw new BadRequestException('Something bad happened'
+  //   // return this.categoryService.detailCategory(categoryId);
+  // }
 }

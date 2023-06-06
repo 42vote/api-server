@@ -37,18 +37,18 @@ export class CategoryService {
   }
 
   async searchCategory(expired: string) {
-    const categories = await this.categoryRepo.find({
+    let categories = await this.categoryRepo.find({
       where: {
         id: Not(this.goodsCategoryId),
       },
       relations: { docOption: true },
     });
     if (expired === 'true') {
-      categories.filter((category) => {
+      categories = categories.filter((category) => {
         return category.docOption[0].docExpire < new Date();
       });
     } else if (expired === 'false') {
-      categories.filter((category) => {
+      categories = categories.filter((category) => {
         return category.docOption[0].docExpire >= new Date();
       });
     }
@@ -123,4 +123,13 @@ export class CategoryService {
       categorySize: Math.ceil(length / 5) - 1, // round up by 5
     };
   }
+
+  async detailCategory(categoryId: number) {
+
+    return await this.categoryRepo.find({
+      relations: { docOption: true },
+      where: { id: categoryId }
+    })
+  }
 }
+
