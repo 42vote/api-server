@@ -125,11 +125,14 @@ export class CategoryService {
   }
 
   async detailCategory(categoryId: number) {
-
+    if (categoryId === this.goodsCategoryId) {
+      return await this.categoryRepo.find({
+        where: { id: categoryId }
+      })
+    }
     return await this.categoryRepo.find({
       relations: { docOption: true },
       where: { id: categoryId }
     })
   }
 }
-

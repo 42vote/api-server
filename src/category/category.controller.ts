@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -34,11 +35,13 @@ export class CategoryController {
     return this.categoryService.sizeCategory(query, req['user'].userId);
   }
 
-  // @Get(':categoryId')
-  // detailCategory(@Param('categoryId') categoryId: number) {
-  //   console.log(categoryId);
-  //   if (accumulate)
-  //   throw new BadRequestException('Something bad happened'
-  //   // return this.categoryService.detailCategory(categoryId);
-  // }
+  @Get(':categoryId')
+  detailCategory(@Param('categoryId') categoryId: number) {
+    if (isNaN(categoryId)) {
+      console.log(categoryId);
+
+      throw new BadRequestException('invalid category id');
+    }
+    return this.categoryService.detailCategory(categoryId);
+  }
 }
