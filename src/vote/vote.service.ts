@@ -63,18 +63,19 @@ export class VoteService {
   async getParticipant(search: SearchParticipantDto) {
     const query = this.voteRepo
       .createQueryBuilder('vote')
-      .innerJoin('vote.user', 'user')
+      .innerJoin('vote.user', 'voter')
       .innerJoin('vote.document', 'document')
+      .innerJoin('document.author', 'author')
       .where('1=1');
     if (search.documentId != null)
       query.andWhere('document.id = :documentId', search);
     if (search.voterIntraId != null)
-      query.andWhere('user.intraId = :voterIntraId', search);
+      query.andWhere('voter.intraId = :voterIntraId', search);
     if (search.authorIntraId != null)
-      query.andWhere('user.intraId = :authorIntraId', search);
+      query.andWhere('author.intraId = :authorIntraId', search);
     query.setFindOptions({ relations: ['user', 'document'] });
     return await query
-      .select(['vote.id', 'vote.createdAt', 'user.intraId', 'document.id'])
+      .select(['vote.id', 'vote.createdAt', 'voter.intraId', 'document.id', 'author.intraId'])
       .getMany();
   }
 }
