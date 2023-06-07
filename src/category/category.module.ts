@@ -16,5 +16,6 @@ import Vote from 'src/entity/vote.entity';
   ],
   providers: [CategoryService, ConfigService],
   controllers: [CategoryController],
+  exports: [CategoryService],
 })
 export class CategoryModule {}
