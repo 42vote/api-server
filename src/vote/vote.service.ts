@@ -28,17 +28,21 @@ export class VoteService {
       .createQueryBuilder('vote')
       .innerJoin('vote.user', 'user')
       .innerJoin('vote.document', 'document')
+      .innerJoin('document.category', 'category')
       .where('1=1');
     if (search.intraId != null)
       query.andWhere('user.intraId = :intraId', search);
     if (search.documentId != null)
       query.andWhere('document.id = :documentId', search);
     if (search.userId != null) query.andWhere('user.id = :userId', search);
+    if (search.categoryId != null)
+      query.andWhere('category.id = :categoryId', search);
     return query;
   }
 
   async getVote(search: SearchVoteDto) {
     const query = this.#getSearchQuery(search);
+    query.select(['vote.id', 'vote.createdAt']);
     return await query.getMany();
   }
 
@@ -56,6 +60,9 @@ export class VoteService {
       'document.id',
       'document.title',
       'document.createdAt',
+      'category.id',
+      'category.title',
+      'category.multipleVote',
     ]);
     return await query.getMany();
   }
@@ -75,7 +82,13 @@ export class VoteService {
       query.andWhere('author.intraId = :authorIntraId', search);
     query.setFindOptions({ relations: ['user', 'document'] });
     return await query
-      .select(['vote.id', 'vote.createdAt', 'voter.intraId', 'document.id', 'author.intraId'])
+      .select([
+        'vote.id',
+        'vote.createdAt',
+        'voter.intraId',
+        'document.id',
+        'author.intraId',
+      ])
       .getMany();
   }
 }

@@ -9,6 +9,7 @@ import { VoteService } from './vote.service';
 import { DocumentModule } from 'src/document/document.module';
 import { UserModule } from 'src/user/user.module';
 import { APP_PIPE } from '@nestjs/core';
+import { CategoryModule } from 'src/category/category.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { APP_PIPE } from '@nestjs/core';
     TypeOrmModule.forFeature([User, Document, Vote]),
     forwardRef(() => DocumentModule),
     UserModule,
+    CategoryModule,
   ],
   controllers: [VoteController],
   providers: [VoteService],
