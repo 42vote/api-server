@@ -126,11 +126,11 @@ export class CategoryService {
 
   async detailCategory(categoryId: number) {
     if (categoryId === this.goodsCategoryId) {
-      return await this.categoryRepo.find({
+      return await this.categoryRepo.findOne({
         where: { id: categoryId }
       })
     }
-    return await this.categoryRepo.find({
+    return await this.categoryRepo.findOne({
       relations: { docOption: true },
       where: { id: categoryId }
     })
