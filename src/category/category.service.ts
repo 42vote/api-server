@@ -1,5 +1,5 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { LessThan, MoreThanOrEqual, Not, Repository } from 'typeorm';
+import { LessThan, MoreThan, MoreThanOrEqual, Not, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import Category from 'src/entity/category.entity';
 import DocOption from 'src/entity/doc-option.entity';
@@ -101,52 +101,79 @@ export class CategoryService {
   }
 
   async sizeCategory(query: SizeCategoryDto, userId: number) {
-    let length;
+    let totalLength;
+    let activeLength;
 
     if (query.myPost === 'true') {
-      length = await this.documentRepo.count({
+      totalLength = await this.documentRepo.count({
         relations: { author: true },
         where: { author: { id: userId } },
       });
+      activeLength = await this.documentRepo.count({
+        relations: {
+          author: true,
+          option: true,
+        },
+        where: {
+          author: { id: userId },
+          option: { docExpire: MoreThan(new Date()) },
+        },
+      });
     } else if (query.myVote === 'true') {
-      length = await this.voteRepo.count({
+      totalLength = await this.voteRepo.count({
         relations: { user: true },
         where: { user: { id: userId } },
       });
+      activeLength = await this.voteRepo.count({
+        relations: { document: { option: true } },
+        where: {
+          user: { id: userId },
+          document: { option: { docExpire: MoreThan(new Date()) } },
+        },
+      });
     } else {
-      length = await this.documentRepo.count({
-        relations: { category: true },
+      totalLength = await this.documentRepo.count({
+        relations: { category: true, option: true },
         where: { category: { id: query.categoryId } },
+      });
+      activeLength = await this.documentRepo.count({
+        relations: { author: true, option: true },
+        where: {
+          category: { id: query.categoryId },
+          option: { docExpire: MoreThan(new Date()) },
+        },
       });
     }
     return {
-      categorySize: Math.ceil(length / 5) - 1, // round up by 5
+      categorySize: Math.ceil(totalLength / 5) - 1, // round up by 5
+      activeSize: Math.ceil(activeLength / 5) - 1,
     };
   }
 
   async detailCategory(categoryId: number) {
     if (categoryId === this.goodsCategoryId) {
       return await this.categoryRepo.findOne({
-        where: { id: categoryId }
-      })
+        where: { id: categoryId },
+      });
     }
     return await this.categoryRepo.findOne({
       relations: { docOption: true },
-      where: { id: categoryId }
-    })
+      where: { id: categoryId },
+    });
   }
 
   async deleteCategory(categoryId: number) {
     if (categoryId === this.goodsCategoryId) {
-      return await this.categoryRepo.find({
-      })
+      return await this.categoryRepo.find({});
     }
-    const docOptions = await this.documentOptionRepo.find({ 
-      relations: { category: true},
-      where: { category: { id: categoryId }}
-     });
+    const docOptions = await this.documentOptionRepo.find({
+      relations: { category: true },
+      where: { category: { id: categoryId } },
+    });
 
-     return this.documentOptionRepo.update(docOptions[0].id, {docExpire: new Date()});
+    return this.documentOptionRepo.update(docOptions[0].id, {
+      docExpire: new Date(),
+    });
 
     // return await this.categoryRepo.delete(categoryId)
   }
