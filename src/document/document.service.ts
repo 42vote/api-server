@@ -30,7 +30,7 @@ export class DocumentService {
     private voteService: VoteService,
   ) {}
 
-  async searchDoc(searchCriteria: SearchDocumentDto, user: any) {
+  async searchDocument(searchCriteria: SearchDocumentDto, user: any) {
     let documents: Document[] = [];
 
     if (searchCriteria.myPost === 'true') {
@@ -101,7 +101,7 @@ export class DocumentService {
     }));
   }
 
-  async detailDoc(documentId: number, user: any) {
+  async detailDocument(documentId: number, user: any) {
     const document = await this.DocRepo.findOne({
       where: { id: documentId },
       relations: {
@@ -115,7 +115,6 @@ export class DocumentService {
     if (!document) {
       throw new NotFoundException(`Document with ID ${documentId} not found`);
     }
-    // await new Promie(resolve => setTimeout(resolve, 10000));
 
     return {
       id: document.id,
@@ -124,6 +123,7 @@ export class DocumentService {
       author: document.author.intraId,
       isAuthor: document.author.id === user.userId,
       categoryId: document.category.id,
+      mutipleVote: document.category.multipleVote,
       createAt: document.createdAt,
       voteExpiredAt: document.option.voteExpire,
       goal: document.option.goal,
@@ -140,7 +140,7 @@ export class DocumentService {
     };
   }
 
-  async createDoc(body: CreateDocumentDto, user) {
+  async createDocument(body: CreateDocumentDto, user) {
     let docOption;
 
     const voteTime = new Date();
@@ -171,7 +171,6 @@ export class DocumentService {
 
     const saveDoc = await this.DocRepo.save(document);
 
-    console.log(saveDoc.id);
     const images = body.image;
     for (let i = 0; i < images.length; i++) {
       const filename = `${saveDoc.id}/image_${i}`;
@@ -185,11 +184,10 @@ export class DocumentService {
         await this.ImageRepo.save(image);
       }
     }
-
     return document;
   }
 
-  async deleteDoc(documentId: number) {
+  async deleteDocument(documentId: number) {
     const document = await this.DocRepo.findOne({
       where: { id: documentId },
       relations: ['option', 'category', 'images'],
@@ -204,7 +202,6 @@ export class DocumentService {
       const customOption = document.option;
       await this.DocOpRepo.remove(customOption);
     }
-
     return;
   }
 
