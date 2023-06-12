@@ -24,28 +24,26 @@ export class DocumentController {
   @Get()
   searchDocument(
     @Query() searchDto: SearchDocumentDto,
-    //   new ValidationPipe({ exceptionFactory: () => new BadRequestException() }),
-    // )
     @Req() token: Request,
   ) {
-    return this.docService.searchDoc(searchDto, token['user']);
+    return this.docService.searchDocument(searchDto, token['user']);
   }
-
+  
   @Get(':document_id')
   detailDocument(
     @Param('document_id') documentId: number,
     @Req() token: Request,
   ) {
-    return this.docService.detailDoc(documentId, token['user']);
+    return this.docService.detailDocument(documentId, token['user']);
   }
 
   @Post()
-  creatDocument(@Body() body: any, @Req() req: Request) {
-    return this.docService.createDoc(body, req['user']);
+  creatDocument(@Body() body: CreateDocumentDto, @Req() req: Request) {
+    return this.docService.createDocument(body, req['user']);
   }
 
   @Delete(':document_id')
   deleteDocument(@Param('document_id') documentId: number) {
-    return this.docService.deleteDoc(documentId);
+    return this.docService.deleteDocument(documentId);
   }
 }
