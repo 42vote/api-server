@@ -81,6 +81,15 @@ export class DocumentService {
       });
     }
 
+    if (searchCriteria.expired !== 'all')
+      documents = documents.filter((document) => {
+        const docExpireDate = document.option.docExpire;
+        if (searchCriteria.expired === 'false') {
+          return docExpireDate >= new Date();
+        } else {
+          return docExpireDate < new Date();
+        }
+      });
 
     return documents.map((doc) => ({
       id: doc.id,
@@ -88,7 +97,7 @@ export class DocumentService {
       goal: doc.option.goal,
       voteCnt: doc.votes.length,
       voteExpired: doc.option.voteExpire < new Date(),
-      image: doc.images[0] ? doc.images[0].directory : null
+      image: doc.images[0] ? doc.images[0].directory : null,
     }));
   }
 
@@ -127,7 +136,7 @@ export class DocumentService {
           })
         ).length !== 0, // need to change
       isVoteExpired: document.option.voteExpire < new Date() ? true : false,
-      image: document.images.map((image) => image.directory)
+      image: document.images.map((image) => image.directory),
     };
   }
 
@@ -172,7 +181,7 @@ export class DocumentService {
           document: saveDoc,
           directory: directory,
           filename: `image_${i}`,
-        })
+        });
         await this.ImageRepo.save(image);
       }
     }
