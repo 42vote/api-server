@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { LessThan, MoreThan, MoreThanOrEqual, Not, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import Category from 'src/entity/category.entity';
@@ -156,10 +156,25 @@ export class CategoryService {
         where: { id: categoryId },
       });
     }
-    return await this.categoryRepo.findOne({
+    const category = await this.categoryRepo.findOne({
       relations: { docOption: true },
       where: { id: categoryId },
     });
+    if (!category) {
+      throw new NotFoundException(`Category with ID ${categoryId} not found`);
+    }
+
+    return {
+      id: category.id,
+      title: category.title,
+      multipleVote: category.multipleVote,
+      anonymousVote: category.anonymousVote,
+      createAt: category.createAt,
+      updatedAt: category.updatedAt,
+      goal: category.docOption[0].goal,
+      voteExpire: category.docOption[0].voteExpire,
+      docExpire: category.docOption[0].docExpire,
+    }
   }
 
   async deleteCategory(categoryId: number) {
