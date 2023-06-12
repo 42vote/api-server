@@ -81,6 +81,16 @@ export class DocumentService {
       });
     }
 
+    if (searchCriteria.expired !== 'all')
+      documents = documents.filter((document) => {
+        const docExpireDate = document.option.docExpire;
+        if (searchCriteria.expired === 'false') {
+          return docExpireDate >= new Date();
+        } else {
+          return docExpireDate < new Date();
+        }
+      });
+
     return documents.map((doc) => ({
       id: doc.id,
       title: doc.title,
