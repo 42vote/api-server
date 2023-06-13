@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { LessThan, MoreThan, MoreThanOrEqual, Not, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import Category from 'src/entity/category.entity';
@@ -8,6 +12,7 @@ import SizeCategoryDto from './dto/size-category.dto';
 import Document from 'src/entity/document.entity';
 import { ConfigService } from '@nestjs/config';
 import Vote from 'src/entity/vote.entity';
+import UpdateCategoryDto from './dto/update-category.dto';
 
 @Injectable()
 export class CategoryService {
@@ -174,7 +179,58 @@ export class CategoryService {
       goal: category.docOption[0].goal,
       voteExpire: category.docOption[0].voteExpire,
       docExpire: category.docOption[0].docExpire,
+    };
+  }
+
+  async updateCategory(
+    categoryId: number,
+    updateCategoryDTO: UpdateCategoryDto,
+  ) {
+    const category = await this.categoryRepo.findOne({
+      where: { id: categoryId },
+      relations: { docOption: true },
+    });
+
+    if (!category) {
+      throw new NotFoundException(`Category with ID ${categoryId} not found`);
     }
+    if (!category.docOption) {
+      throw new NotFoundException(`Category with ID ${categoryId} has no document option`);
+    }
+    const documentOption = category.docOption[0];
+  
+    if (updateCategoryDTO.title) {
+      category.title = updateCategoryDTO.title;
+    }
+    if (updateCategoryDTO.docExpire || updateCategoryDTO.voteExpire || updateCategoryDTO.goal) {
+      if (updateCategoryDTO.docExpire) {
+        documentOption.docExpire = updateCategoryDTO.docExpire;
+      }
+      if (updateCategoryDTO.voteExpire) {
+        documentOption.voteExpire = updateCategoryDTO.voteExpire;
+      }
+      if (updateCategoryDTO.goal) {
+        documentOption.goal = updateCategoryDTO.goal;
+      }
+      await this.documentOptionRepo.save(documentOption);
+    }
+
+    if (updateCategoryDTO.title) {
+      category.title = updateCategoryDTO.title;
+      await this.categoryRepo.save(category);
+    }
+
+    return {
+      id: category.id,
+      title: category.title,
+      multipleVote: category.multipleVote,
+      anonymousVote: category.anonymousVote,
+      createAt: category.createAt,
+      updatedAt: category.updatedAt,
+      goal: documentOption.goal,
+      voteExpire: documentOption.voteExpire,
+      docExpire: documentOption.docExpire,
+    };
   }
 
   async deleteCategory(categoryId: number) {

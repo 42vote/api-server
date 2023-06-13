@@ -5,6 +5,7 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   Query,
   Req,
@@ -15,6 +16,7 @@ import CreateCategoryDto from './dto/create-category.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
 import SizeCategoryDto from './dto/size-category.dto';
 import SearchCategoryDto from './dto/search-category.dto';
+import UpdateCategoryDto from './dto/update-category.dto';
 
 @Controller('category')
 @UseGuards(AuthGuard)
@@ -44,6 +46,16 @@ export class CategoryController {
       throw new BadRequestException('invalid category id');
     }
     return this.categoryService.detailCategory(categoryId);
+  }
+
+  @Patch(':categoryId')
+  updateCategory(@Param('categoryId') categoryId: number, @Body() updateCategoryDTO: UpdateCategoryDto) {
+    if (isNaN(categoryId)) {
+      console.log(categoryId);
+
+      throw new BadRequestException('invalid category id');
+    }
+    return this.categoryService.updateCategory(categoryId, updateCategoryDTO);
   }
 
   @Delete(':categoryId')
