@@ -5,6 +5,7 @@ import {
   IsInt,
   IsOptional,
 } from 'class-validator';
+import IsValidDate from './date-validator';
 
 export default class CreateCategoryDto {
   @IsString()
@@ -17,11 +18,11 @@ export default class CreateCategoryDto {
   anonymousVote: boolean;
 
   @IsOptional()
-  @IsString()
+  @IsValidDate()
   voteExpire?: Date;
 
   @IsOptional()
-  @IsString()
+  @IsValidDate()
   docExpire?: Date;
 
   @IsOptional()

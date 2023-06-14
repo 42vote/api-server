@@ -3,6 +3,7 @@ import {
 	IsInt,
 	IsOptional,
   } from 'class-validator';
+import IsValidDate from './date-validator';
   
   export default class UpdateCategoryDto {
 	@IsOptional()
@@ -10,11 +11,11 @@ import {
 	title?: string;
   
 	@IsOptional()
-	@IsString()
+	@IsValidDate()
 	voteExpire?: Date;
   
 	@IsOptional()
-	@IsString()
+	@IsValidDate()
 	docExpire?: Date;
   
 	@IsOptional()
