@@ -39,15 +39,6 @@ async function bootstrap() {
   });
   app.use(express.json({ limit: '50mb' }));
   app.use(express.urlencoded({ limit: '50mb' }));
-  app.use(
-    rateLimit({
-      windowMs: 10 * 60 * 1000, // 10 minutes
-      // max: +process.env.LIMIT_FOR_MIN ?? 100, // Limit each IP to 100 requests per `window` (here, per 1 minutes)
-      max: +configService.get('LIMIT_FOR_MIN') * 10 ?? 1000,
-      standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-      legacyHeaders: false, // Disable the `X-RateLimit-*` headers
-    }),
-  );
   app.use(helmet());
   app.use(cookieParser());
   app.use(cookieAuth);
