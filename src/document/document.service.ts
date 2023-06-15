@@ -123,7 +123,7 @@ export class DocumentService {
       author: document.author.intraId,
       isAuthor: document.author.id === user.userId,
       categoryId: document.category.id,
-      mutipleVote: document.category.multipleVote,
+      multipleVote: document.category.multipleVote,
       createAt: document.createdAt,
       voteExpiredAt: document.option.voteExpire,
       goal: document.option.goal,
