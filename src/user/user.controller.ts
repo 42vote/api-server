@@ -48,6 +48,10 @@ export class UserController {
     this.userService.updateUser(user);
     if (user == null) throw new InternalServerErrorException('not found user');
     const token = await this.authService.createToken(user);
+    try {
+      await this.authService.verifyRefreshToken(user.jwtRefreshToken);
+      token.refresh_token = user.jwtRefreshToken;
+    } catch (e) {}
     if (token == null) throw new InternalServerErrorException('asdf');
     this.userService.updateUser({
       ...user,
