@@ -124,6 +124,7 @@ export class DocumentService {
       isAuthor: document.author.id === user.userId,
       categoryId: document.category.id,
       multipleVote: document.category.multipleVote,
+      anonymousVote: document.category.anonymousVote,
       createAt: document.createdAt,
       voteExpiredAt: document.option.voteExpire,
       goal: document.option.goal,
