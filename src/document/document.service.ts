@@ -122,6 +122,7 @@ export class DocumentService {
       content: document.context,
       author: document.author.intraId,
       isAuthor: document.author.id === user.userId,
+      isAdmin: user.isAdmin,
       categoryId: document.category.id,
       multipleVote: document.category.multipleVote,
       createAt: document.createdAt,
