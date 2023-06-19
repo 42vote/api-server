@@ -68,7 +68,8 @@ export class VoteController {
       throw new BadRequestException('document is not found');
     const now = Date.now();
     const isDocVoteExpired =
-      new Date(document.option.voteExpire).getTime() < now;
+      new Date(document.option.voteExpire).getTime() < now ||
+      new Date(document.option.docExpire).getTime() < now;
     if (isDocVoteExpired) throw new BadRequestException('document is expired');
     const user = await this.userService.getUser(intraId);
     if (user == null) throw new BadRequestException('user dead');
