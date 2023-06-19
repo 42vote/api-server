@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import Vote from 'src/entity/vote.entity';
+import VoteLog from 'src/entity/vote-log.entity';
 import Document from 'src/entity/document.entity';
 import User from 'src/entity/user.entity';
 import { Repository } from 'typeorm';
@@ -9,10 +10,20 @@ import SearchParticipantDto from './dto/search-participant';
 
 @Injectable()
 export class VoteService {
-  constructor(@InjectRepository(Vote) private voteRepo: Repository<Vote>) {}
+  constructor(
+    @InjectRepository(Vote) private voteRepo: Repository<Vote>,
+    @InjectRepository(VoteLog) private voteLogRepo: Repository<VoteLog>,
+  ) {}
 
   async deleteVote(vote: Vote) {
-    return await this.voteRepo.delete({ id: vote.id });
+    const res = await this.voteRepo.delete({ id: vote.id });
+    if (res.affected.valueOf() > 0)
+      await this.voteLogRepo.save({
+        userId: vote.user.id,
+        documentId: vote.document.id,
+        state: 0,
+      });
+    return res;
   }
 
   async vote(user: User, document: Document) {
@@ -20,7 +31,14 @@ export class VoteService {
       user,
       document,
     } as Vote;
-    return await this.voteRepo.save(vote);
+    const res = await this.voteRepo.save(vote);
+    const voteLog = {
+      userId: user.id,
+      documentId: document.id,
+      state: 1,
+    };
+    await this.voteLogRepo.save(voteLog);
+    return res;
   }
 
   #getSearchQuery(search: SearchVoteDto) {
