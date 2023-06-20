@@ -1,10 +1,11 @@
 import {
+  BadRequestException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { LessThan, MoreThan, MoreThanOrEqual, Not, Repository } from 'typeorm';
-import { InjectRepository } from '@nestjs/typeorm';
+import { InjectRepository, getDataSourcePrefix } from '@nestjs/typeorm';
 import Category from 'src/entity/category.entity';
 import DocOption from 'src/entity/doc-option.entity';
 import CreateCategoryDto from './dto/create-category.dto';
@@ -195,14 +196,20 @@ export class CategoryService {
       throw new NotFoundException(`Category with ID ${categoryId} not found`);
     }
     if (!category.docOption) {
-      throw new NotFoundException(`Category with ID ${categoryId} has no document option`);
+      throw new NotFoundException(
+        `Category with ID ${categoryId} has no document option`,
+      );
     }
     const documentOption = category.docOption[0];
-  
+
     if (updateCategoryDTO.title) {
       category.title = updateCategoryDTO.title;
     }
-    if (updateCategoryDTO.docExpire || updateCategoryDTO.voteExpire || updateCategoryDTO.goal) {
+    if (
+      updateCategoryDTO.docExpire ||
+      updateCategoryDTO.voteExpire ||
+      updateCategoryDTO.goal
+    ) {
       if (updateCategoryDTO.docExpire) {
         documentOption.docExpire = updateCategoryDTO.docExpire;
       }
@@ -235,15 +242,18 @@ export class CategoryService {
 
   async deleteCategory(categoryId: number) {
     if (categoryId === this.goodsCategoryId) {
-      return await this.categoryRepo.find({});
+      throw new BadRequestException('cannot delete default category');
     }
     const docOptions = await this.documentOptionRepo.find({
       relations: { category: true },
       where: { category: { id: categoryId } },
     });
+    
+    const expireTime = new Date();
 
     return this.documentOptionRepo.update(docOptions[0].id, {
-      docExpire: new Date(),
+        voteExpire: expireTime,
+        docExpire: expireTime,
     });
 
     // return await this.categoryRepo.delete(categoryId)
