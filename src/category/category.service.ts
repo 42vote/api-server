@@ -95,8 +95,12 @@ export class CategoryService {
     // create a new doc option object from the DTO
     const docOption = new DocOption();
     docOption.goal = body.goal;
-    docOption.voteExpire = body.voteExpire;
-    docOption.docExpire = body.docExpire;
+    docOption.voteExpire = new Date(
+      body.voteExpire.toLocaleString('ko-KR', { timeZone: 'UTC' }),
+    );
+    docOption.docExpire = new Date(
+      body.docExpire.toLocaleString('ko-KR', { timeZone: 'UTC' }),
+    );
     docOption.category = savedCategory;
 
     // save the doc option to the database
@@ -211,10 +215,18 @@ export class CategoryService {
       updateCategoryDTO.goal
     ) {
       if (updateCategoryDTO.docExpire) {
-        documentOption.docExpire = updateCategoryDTO.docExpire;
+        documentOption.docExpire = new Date(
+          updateCategoryDTO.docExpire.toLocaleString('ko-KR', {
+            timeZone: 'UTC',
+          }),
+        );
       }
       if (updateCategoryDTO.voteExpire) {
-        documentOption.voteExpire = updateCategoryDTO.voteExpire;
+        documentOption.voteExpire = new Date(
+          updateCategoryDTO.voteExpire.toLocaleString('ko-KR', {
+            timeZone: 'UTC',
+          }),
+        );
       }
       if (updateCategoryDTO.goal) {
         documentOption.goal = updateCategoryDTO.goal;
@@ -248,12 +260,12 @@ export class CategoryService {
       relations: { category: true },
       where: { category: { id: categoryId } },
     });
-    
+
     const expireTime = new Date();
 
     return this.documentOptionRepo.update(docOptions[0].id, {
-        voteExpire: expireTime,
-        docExpire: expireTime,
+      voteExpire: expireTime,
+      docExpire: expireTime,
     });
 
     // return await this.categoryRepo.delete(categoryId)
