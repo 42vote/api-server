@@ -78,6 +78,7 @@ export class AuthService {
         intraId: user.intraId,
         isAdmin: user.isAdmin,
         wallet: user.wallet,
+        coalition: user.coalition,
       };
       const access_token = await this.jwtService.signAsync(payload, {
         secret: process.env.JWT_ACCESS_SECRET,
