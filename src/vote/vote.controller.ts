@@ -43,7 +43,12 @@ export class VoteController {
   @UseGuards(AuthGuard)
   async getVotePatricipant(@Req() req, @Query() search: SearchParticipantDto) {
     const intraId = req.user?.intraId;
+    const isAdmin = req.user?.isAdmin;
     if (intraId == null) throw new InternalServerErrorException();
+    if (isAdmin)
+      return await this.voteService.getParticipant({
+        ...search,
+      });
     return await this.voteService.getParticipant({
       ...search,
       authorIntraId: intraId,
