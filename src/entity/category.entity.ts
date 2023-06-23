@@ -23,6 +23,9 @@ export default class Category {
   @Column()
   anonymousVote: boolean;
 
+  @Column({ default: 0 })
+  sort: number;
+
   @CreateDateColumn()
   createAt: Date;
 
