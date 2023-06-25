@@ -8,7 +8,6 @@ SRC = dist/ \
 		.platform/ \
 
 $(TARGET): $(SRC)
-	npm run build
 	zip -r $@ $^
 
 all: $(TARGET)
