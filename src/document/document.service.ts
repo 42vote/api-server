@@ -195,19 +195,24 @@ export class DocumentService {
   async deleteDocument(documentId: number) {
     const document = await this.DocumentRepo.findOne({
       where: { id: documentId },
-      relations: ['option', 'category', 'images', 'vote'],
+      relations: {
+        option: true,
+        category: true,
+        author: true,
+        images: true,
+        votes: { user: true },
+      },
     });
     if (!document) {
       throw new NotFoundException(`Document with ID ${documentId} not found`);
     }
-    await document.images.map((image) => (
-      this.imageService.deleteOne(image.filename)
-    ));
+    console.log(document);
+    await document.images.map((image) =>
+      this.imageService.deleteOne(image.filename),
+    );
     await this.ImageRepo.remove(document.images);
 
-    await document.votes.map((vote) => (
-      this.voteService.deleteVote(vote)
-    ));
+    await document.votes.map((vote) => this.voteService.deleteVote(vote));
 
     const documentLog = await this.DocumentLogRepo.save({
       title: document.title,
@@ -222,7 +227,6 @@ export class DocumentService {
       const customOption = document.option;
       await this.DocumentOptionRepo.remove(customOption);
     }
-    ;
 
     return await this.DocumentRepo.remove(document);
   }
