@@ -13,6 +13,7 @@ import Image from 'src/entity/image.entity';
 import { UserModule } from 'src/user/user.module';
 import { VoteModule } from 'src/vote/vote.module';
 import { VoteService } from 'src/vote/vote.service';
+import DocumentLog from 'src/entity/document-log.entity';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { VoteService } from 'src/vote/vote.service';
       User,
       Category,
       Document,
+      DocumentLog,
       DocOption,
       Vote,
       Image,
