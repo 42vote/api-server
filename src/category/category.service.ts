@@ -48,6 +48,7 @@ export class CategoryService {
         id: Not(this.goodsCategoryId),
       },
       relations: { docOption: true },
+      order: { sort: 'ASC' },
     });
     if (expired === 'true') {
       categories = categories.filter((category) => {
@@ -79,6 +80,7 @@ export class CategoryService {
           : category.docOption[0].docExpire < new Date()
           ? true
           : false,
+      sort: category.sort,
     }));
   }
 
@@ -209,6 +211,12 @@ export class CategoryService {
     if (updateCategoryDTO.title) {
       category.title = updateCategoryDTO.title;
     }
+    if (updateCategoryDTO.sort != null) {
+      category.sort = updateCategoryDTO.sort;
+    }
+    if (updateCategoryDTO.title || updateCategoryDTO.sort != null) {
+      await this.categoryRepo.save(category);
+    }
     if (
       updateCategoryDTO.docExpire ||
       updateCategoryDTO.voteExpire ||
@@ -232,11 +240,6 @@ export class CategoryService {
         documentOption.goal = updateCategoryDTO.goal;
       }
       await this.documentOptionRepo.save(documentOption);
-    }
-
-    if (updateCategoryDTO.title) {
-      category.title = updateCategoryDTO.title;
-      await this.categoryRepo.save(category);
     }
 
     return {
