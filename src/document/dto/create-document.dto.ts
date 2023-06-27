@@ -1,4 +1,10 @@
-import { IsString, IsDate, IsInt, IsOptional, ArrayMinSize, ArrayMaxSize } from 'class-validator';
+import {
+  IsString,
+  IsInt,
+  IsOptional,
+  ArrayMinSize,
+  ArrayMaxSize,
+} from 'class-validator';
 
 export default class CreateDocumentDto {
   @IsString()

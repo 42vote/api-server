@@ -5,6 +5,7 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   Query,
   Req,
@@ -15,35 +16,42 @@ import { DocumentService } from './document.service';
 import CreateDocumentDto from './dto/create-document.dto';
 import SearchDocumentDto from './dto/search-document.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
+import UpdateDocumentDto from './dto/update-document.dto';
 
 @Controller('document')
 @UseGuards(AuthGuard)
 export class DocumentController {
-  constructor(readonly docService: DocumentService) {}
+  constructor(readonly documentService: DocumentService) {}
 
   @Get()
-  searchDocument(
-    @Query() searchDto: SearchDocumentDto,
-    @Req() token: Request,
-  ) {
-    return this.docService.searchDocument(searchDto, token['user']);
+  searchDocument(@Query() searchDto: SearchDocumentDto, @Req() token: Request) {
+    return this.documentService.searchDocument(searchDto, token['user']);
   }
-  
+
   @Get(':document_id')
   detailDocument(
     @Param('document_id') documentId: number,
     @Req() token: Request,
   ) {
-    return this.docService.detailDocument(documentId, token['user']);
+    return this.documentService.detailDocument(documentId, token['user']);
   }
 
   @Post()
   creatDocument(@Body() body: CreateDocumentDto, @Req() req: Request) {
-    return this.docService.createDocument(body, req['user']);
+    return this.documentService.createDocument(body, req['user']);
+  }
+
+  @Patch(':document_id')
+  updateDocument(
+    @Param('document_id') documentId: number,
+    @Body() body: UpdateDocumentDto,
+    @Req() req: Request,
+  ) {
+    return this.documentService.updateDocument(documentId, body, req['user']);
   }
 
   @Delete(':document_id')
   deleteDocument(@Param('document_id') documentId: number) {
-    return this.docService.deleteDocument(documentId);
+    return this.documentService.deleteDocument(documentId);
   }
 }
