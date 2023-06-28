@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import SearchDocumentDto from './dto/search-document.dto';
@@ -13,9 +18,13 @@ import SearchVoteDto from 'src/vote/dto/search-vote.dto';
 import Image from 'src/entity/image.entity';
 import { doc } from 'prettier';
 import DocumentLog from 'src/entity/document-log.entity';
+import UpdateDocumentDto from './dto/update-document.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class DocumentService {
+  private readonly goodsCategoryId: number;
+
   constructor(
     @InjectRepository(Category)
     private CategoryRepo: Repository<Category>,
@@ -31,7 +40,18 @@ export class DocumentService {
     private DocumentLogRepo: Repository<DocumentLog>,
     private imageService: AwsS3Service,
     private voteService: VoteService,
-  ) {}
+    private configService: ConfigService,
+  ) {
+    const goodsCategoryId = Number(
+      this.configService.get<string>('GOODS_CATEGORY_ID'),
+    );
+    if (isNaN(goodsCategoryId)) {
+      throw new InternalServerErrorException(
+        'GOODS_CATEGORY_ID is not set or invalid.',
+      );
+    }
+    this.goodsCategoryId = goodsCategoryId;
+  }
 
   async searchDocument(searchCriteria: SearchDocumentDto, user: any) {
     let documents: Document[] = [];
@@ -206,29 +226,100 @@ export class DocumentService {
     if (!document) {
       throw new NotFoundException(`Document with ID ${documentId} not found`);
     }
-    console.log(document);
-    await document.images.map((image) =>
-      this.imageService.deleteOne(image.filename),
-    );
-    await this.ImageRepo.remove(document.images);
 
-    await document.votes.map((vote) => this.voteService.deleteVote(vote));
+    await this.imageService.deleteDir(`${documentId}`);
+    this.ImageRepo.remove(document.images);
+    document.votes.map((vote) => this.voteService.deleteVote(vote));
 
     const documentLog = await this.DocumentLogRepo.save({
       title: document.title,
       category: document.category.title,
       author: document.author.intraId,
-      context:  document.context,
-      createdAt:  document.createdAt,
+      context: document.context,
+      createdAt: document.createdAt,
     });
 
+    const result = await this.DocumentRepo.remove(document);
     // delete docOption if category is "goods or 5"
     if (document.category.id === 5) {
       const customOption = document.option;
       await this.DocumentOptionRepo.remove(customOption);
     }
 
-    return await this.DocumentRepo.remove(document);
+    return result;
+  }
+
+  async updateDocument(
+    documentId: number,
+    updateDocumentDTO: UpdateDocumentDto,
+    user,
+  ) {
+    const document = await this.DocumentRepo.findOne({
+      where: { id: documentId },
+      relations: {
+        option: true,
+        category: true,
+        author: true,
+        images: true,
+        votes: { user: true },
+      },
+    });
+    if (!document) {
+      throw new NotFoundException(`Document with ID ${documentId} not found`);
+    }
+    if (document.author.id !== user.userId) {
+      throw new UnauthorizedException(`Only writer can edit document`);
+    }
+
+    document.title = updateDocumentDTO.title;
+    document.context = updateDocumentDTO.context;
+
+    if (
+      document.category.id === this.goodsCategoryId &&
+      updateDocumentDTO.goal
+    ) {
+      document.option.goal = updateDocumentDTO.goal;
+    }
+
+    this.DocumentRepo.save(document);
+
+    for (let i = 0; i < 3; i++) {
+      if (i < document.images.length) {
+        if (i >= updateDocumentDTO.image.length) {
+          await this.imageService.deleteOne(`${documentId}/image_${i}`);
+          await this.ImageRepo.remove(document.images[i]);
+        } else {
+          const directory: string = document.images[i].directory;
+          if (updateDocumentDTO.image[i] !== directory) {
+            if (await this.imageService.deleteOne(directory)) {
+              await this.imageService.uploadOne(
+                directory,
+                updateDocumentDTO.image[i],
+              );
+            } else {
+              console.log('image not deleted');
+            }
+          }
+        }
+      } else if (
+        i >= document.images.length &&
+        i < updateDocumentDTO.image.length
+      ) {
+        const filename = `${documentId}/image_${i}`;
+        const directory = await this.imageService.uploadOne(
+          filename,
+          updateDocumentDTO.image[i],
+        );
+        if (directory) {
+          const image = this.ImageRepo.create({
+            document: { id: documentId },
+            directory: directory,
+            filename: `image_${i}`,
+          });
+          await this.ImageRepo.save(image);
+        }
+      }
+    }
   }
 
   async getDocument(documentId: number) {
