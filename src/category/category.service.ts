@@ -46,6 +46,7 @@ export class CategoryService {
     let categories = await this.categoryRepo.find({
       where: {
         id: Not(this.goodsCategoryId),
+        hide: false,
       },
       relations: { docOption: true },
       order: { sort: 'ASC' },
@@ -272,5 +273,26 @@ export class CategoryService {
     });
 
     // return await this.categoryRepo.delete(categoryId)
+  }
+
+  async hideCategory(categoryId: number) {
+    if (categoryId === this.goodsCategoryId) {
+      throw new BadRequestException('cannot hide default category');
+    }
+    const docOptions = await this.documentOptionRepo.findOne({
+      relations: { category: true },
+      where: { category: { id: categoryId } },
+    });
+
+    const expireTime = new Date();
+
+    await this.documentOptionRepo.update(docOptions.id, {
+      voteExpire: expireTime,
+      docExpire: expireTime,
+    });
+
+    return this.categoryRepo.update(categoryId, {
+      hide: true,
+    });
   }
 }

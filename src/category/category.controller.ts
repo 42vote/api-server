@@ -61,10 +61,16 @@ export class CategoryController {
   @Delete(':categoryId')
   deleteCategory(@Param('categoryId') categoryId: number) {
     if (isNaN(categoryId)) {
-      console.log(categoryId);
-
       throw new BadRequestException('invalid category id');
     }
     return this.categoryService.deleteCategory(categoryId);
+  }
+
+  @Delete('hide/:categoryId')
+   hideCategory(@Param('categoryId') categoryId: number) {
+    if (isNaN(categoryId)) {
+      throw new BadRequestException('invalid category id');
+    }
+    return this.categoryService.hideCategory(categoryId);
   }
 }

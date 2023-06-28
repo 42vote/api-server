@@ -26,6 +26,9 @@ export default class Category {
   @Column({ default: 0 })
   sort: number;
 
+  @Column({ default: false})
+  hide: boolean;
+
   @CreateDateColumn()
   createAt: Date;
 
