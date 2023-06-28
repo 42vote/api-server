@@ -27,18 +27,22 @@ export class UserController {
   @Get('auth_page')
   async authPage(@Req() req, @Res() res) {
     const authSite = `https://api.intra.42.fr/oauth/authorize`;
-    const clientId =
-      'client_id=u-s4t2ud-dd72647792601b765e45b2925cd5455ca3b035957e70a99241e645fa8d23b4e2';
-    const redir = `redirect_uri=${req.headers.referer}auth/42/redirect`;
+    const clientId = `client_id=${process.env.FT_UID}`;
+    const redir = req.headers.referer == null ?
+      `redirect_uri=${process.env.CLIENT_DOMAIN}/auth/42/redirect` :
+      `redirect_uri=${req.headers.referer}auth/42/redirect`;
     const url = `${authSite}?${clientId}&${redir}&response_type=code`;
     res.redirect(url);
   }
 
   @Post('login')
   async login(@Req() req, @Body('code') code: string) {
+    let referer = req.headers.referer == null ?
+      process.env.CLIENT_DOMAIN : req.headers.referer;
+    referer = new URL(referer).origin;
     const rawUser = await this.authService.getUserInfoFrom42(
       code,
-      req.headers.referer,
+      referer,
     );
     if (rawUser == null) throw new UnauthorizedException(`error`);
     let user = await this.userService.getUser(rawUser.intraId);

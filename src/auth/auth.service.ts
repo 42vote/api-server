@@ -16,7 +16,7 @@ export class AuthService {
         grant_type: 'authorization_code',
         client_id: process.env.FT_UID,
         client_secret: process.env.FT_SECRET,
-        redirect_uri: `${referer}auth/42/redirect`,
+        redirect_uri: `${referer}/auth/42/redirect`,
         code,
       };
       token = await fetch('https://api.intra.42.fr/oauth/token', {
