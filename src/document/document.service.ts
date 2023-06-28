@@ -226,13 +226,10 @@ export class DocumentService {
     if (!document) {
       throw new NotFoundException(`Document with ID ${documentId} not found`);
     }
-    console.log(document);
-    await document.images.map((image) =>
-      this.imageService.deleteOne(image.directory),
-    );
-    await this.ImageRepo.remove(document.images);
 
-    await document.votes.map((vote) => this.voteService.deleteVote(vote));
+    await this.imageService.deleteDir(`${documentId}`);
+    this.ImageRepo.remove(document.images);
+    document.votes.map((vote) => this.voteService.deleteVote(vote));
 
     const documentLog = await this.DocumentLogRepo.save({
       title: document.title,
@@ -242,13 +239,14 @@ export class DocumentService {
       createdAt: document.createdAt,
     });
 
+    const result = await this.DocumentRepo.remove(document);
     // delete docOption if category is "goods or 5"
     if (document.category.id === 5) {
       const customOption = document.option;
       await this.DocumentOptionRepo.remove(customOption);
     }
 
-    return await this.DocumentRepo.remove(document);
+    return result;
   }
 
   async updateDocument(
@@ -288,7 +286,8 @@ export class DocumentService {
     for (let i = 0; i < 3; i++) {
       if (i < document.images.length) {
         if (i >= updateDocumentDTO.image.length) {
-          this.imageService.deleteOne(`${documentId}/image_${i}`);
+          await this.imageService.deleteOne(`${documentId}/image_${i}`);
+          await this.ImageRepo.remove(document.images[i]);
         } else {
           const directory: string = document.images[i].directory;
           if (updateDocumentDTO.image[i] !== directory) {
