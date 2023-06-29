@@ -65,7 +65,7 @@ export class CategoryService {
         where: { id: this.goodsCategoryId },
       });
       if (goods) {
-        categories.unshift(goods);
+        categories.push(goods);
       }
     }
     return categories.map((category) => ({
@@ -77,11 +77,9 @@ export class CategoryService {
       expired:
         category.id === this.goodsCategoryId
           ? false
-          : category.docOption[0].docExpire < new Date()
-          ? true
-          : false,
+          : category.docOption[0].docExpire < new Date(),
       sort: category.sort,
-    }));
+    })).sort((x, y) => x.sort - y.sort);
   }
 
   async createCategory(body: CreateCategoryDto) {
