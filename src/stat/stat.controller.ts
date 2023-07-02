@@ -32,6 +32,6 @@ export class StatController {
     });
     res.header('Content-Type', 'text/csv');
     res.header('Content-Disposition', 'attachment; filename=data.csv');
-    res.end(csv);
+    res.end("\uFEFF" + csv);
   }
 }
