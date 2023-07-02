@@ -3,6 +3,8 @@ import {
   Controller,
   Get,
   InternalServerErrorException,
+  NotFoundException,
+  Param,
   Post,
   Req,
   Res,
@@ -28,22 +30,22 @@ export class UserController {
   async authPage(@Req() req, @Res() res) {
     const authSite = `https://api.intra.42.fr/oauth/authorize`;
     const clientId = `client_id=${process.env.FT_UID}`;
-    const redir = req.headers.referer == null ?
-      `redirect_uri=${process.env.CLIENT_DOMAIN}/auth/42/redirect` :
-      `redirect_uri=${req.headers.referer}auth/42/redirect`;
+    const redir =
+      req.headers.referer == null
+        ? `redirect_uri=${process.env.CLIENT_DOMAIN}/auth/42/redirect`
+        : `redirect_uri=${req.headers.referer}auth/42/redirect`;
     const url = `${authSite}?${clientId}&${redir}&response_type=code`;
     res.redirect(url);
   }
 
   @Post('login')
   async login(@Req() req, @Body('code') code: string) {
-    let referer = req.headers.referer == null ?
-      process.env.CLIENT_DOMAIN : req.headers.referer;
+    let referer =
+      req.headers.referer == null
+        ? process.env.CLIENT_DOMAIN
+        : req.headers.referer;
     referer = new URL(referer).origin;
-    const rawUser = await this.authService.getUserInfoFrom42(
-      code,
-      referer,
-    );
+    const rawUser = await this.authService.getUserInfoFrom42(code, referer);
     if (rawUser == null) throw new UnauthorizedException(`error`);
     let user = await this.userService.getUser(rawUser.intraId);
     if (user == null) user = await this.userService.addUser(rawUser);
@@ -85,5 +87,14 @@ export class UserController {
   @UseGuards(AuthGuard)
   async me(@Req() req: Request) {
     return req['user'];
+  }
+
+  @Get('find/:intraId')
+  @UseGuards(AuthGuard)
+  async findUser(@Param('intraId') intraId: string) {
+    if(!(await this.userService.getUser(intraId))) {
+      throw new NotFoundException()
+    }
+    return ;
   }
 }
