@@ -273,12 +273,13 @@ export class DocumentService {
 
     document.title = updateDocumentDTO.title;
     document.context = updateDocumentDTO.context;
-
+ 
     if (
       document.category.id === this.goodsCategoryId &&
       updateDocumentDTO.goal
     ) {
       document.option.goal = updateDocumentDTO.goal;
+      this.DocumentOptionRepo.save(document.option);
     }
 
     this.DocumentRepo.save(document);
