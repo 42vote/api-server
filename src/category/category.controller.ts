@@ -24,8 +24,8 @@ export class CategoryController {
   constructor(readonly categoryService: CategoryService) {}
 
   @Get()
-  searchCategory(@Query() searchCategoryDTO: SearchCategoryDto) {
-    return this.categoryService.searchCategory(searchCategoryDTO.expired);
+  searchCategory(@Query() searchCategoryDTO: SearchCategoryDto, @Req() req: Request) {
+    return this.categoryService.searchCategory(searchCategoryDTO, req['user']);
   }
 
   @Post()

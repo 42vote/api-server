@@ -14,6 +14,7 @@ import Document from 'src/entity/document.entity';
 import { ConfigService } from '@nestjs/config';
 import Vote from 'src/entity/vote.entity';
 import UpdateCategoryDto from './dto/update-category.dto';
+import SearchCategoryDto from './dto/search-category.dto';
 
 @Injectable()
 export class CategoryService {
@@ -42,7 +43,7 @@ export class CategoryService {
     this.goodsCategoryId = goodsCategoryId;
   }
 
-  async searchCategory(expired: string) {
+  async searchCategory(searchCategoryDTO: SearchCategoryDto, user: any) {
     let categories = await this.categoryRepo.find({
       where: {
         id: Not(this.goodsCategoryId),
@@ -51,17 +52,22 @@ export class CategoryService {
       relations: { docOption: true },
       order: { sort: 'ASC' },
     });
-    if (expired === 'true') {
+    if (searchCategoryDTO.expired === 'true') {
       categories = categories.filter((category) => {
         return category.docOption[0].docExpire < new Date();
       });
-    } else if (expired === 'false') {
+    } else if (searchCategoryDTO.expired === 'false') {
       categories = categories.filter((category) => {
         return category.docOption[0].docExpire >= new Date();
       });
     }
+    if (searchCategoryDTO.isPosting === 'true') {
+      categories = categories.filter((category) => {
+        return (!category.whitelistOnly || category.whitelist.includes(user.intraId));
+      });
+    }
 
-    if (expired !== 'true') {
+    if (searchCategoryDTO.expired !== 'true') {
       const goods = await this.categoryRepo.findOne({
         where: { id: this.goodsCategoryId },
       });
