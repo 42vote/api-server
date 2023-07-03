@@ -24,7 +24,10 @@ export class CategoryController {
   constructor(readonly categoryService: CategoryService) {}
 
   @Get()
-  searchCategory(@Query() searchCategoryDTO: SearchCategoryDto, @Req() req: Request) {
+  searchCategory(
+    @Query() searchCategoryDTO: SearchCategoryDto,
+    @Req() req: Request,
+  ) {
     return this.categoryService.searchCategory(searchCategoryDTO, req['user']);
   }
 
@@ -49,7 +52,10 @@ export class CategoryController {
   }
 
   @Patch(':categoryId')
-  updateCategory(@Param('categoryId') categoryId: number, @Body() updateCategoryDTO: UpdateCategoryDto) {
+  updateCategory(
+    @Param('categoryId') categoryId: number,
+    @Body() updateCategoryDTO: UpdateCategoryDto,
+  ) {
     if (isNaN(categoryId)) {
       console.log(categoryId);
 
@@ -58,16 +64,16 @@ export class CategoryController {
     return this.categoryService.updateCategory(categoryId, updateCategoryDTO);
   }
 
-  @Delete(':categoryId')
-  deleteCategory(@Param('categoryId') categoryId: number) {
+  @Patch('expire/:categoryId')
+  expireCategory(@Param('categoryId') categoryId: number) {
     if (isNaN(categoryId)) {
       throw new BadRequestException('invalid category id');
     }
-    return this.categoryService.deleteCategory(categoryId);
+    return this.categoryService.expireCategory(categoryId);
   }
 
-  @Delete('hide/:categoryId')
-   hideCategory(@Param('categoryId') categoryId: number) {
+  @Delete(':categoryId')
+  hideCategory(@Param('categoryId') categoryId: number) {
     if (isNaN(categoryId)) {
       throw new BadRequestException('invalid category id');
     }

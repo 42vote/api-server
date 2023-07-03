@@ -271,7 +271,7 @@ export class CategoryService {
     };
   }
 
-  async deleteCategory(categoryId: number) {
+  async expireCategory(categoryId: number) {
     if (categoryId === this.goodsCategoryId) {
       throw new BadRequestException('cannot delete default category');
     }
