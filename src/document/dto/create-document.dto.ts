@@ -24,4 +24,9 @@ export default class CreateDocumentDto {
   @ArrayMinSize(1)
   @ArrayMaxSize(5)
   image: string[];
+
+  @IsString({ each: true })
+  @ArrayMinSize(1)
+  @ArrayMaxSize(5)
+  imageName: string[];
 }
