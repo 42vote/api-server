@@ -162,7 +162,7 @@ export class DocumentService {
         ).length !== 0, // need to change
       isVoteExpired: document.option.voteExpire < new Date() ? true : false,
       image: document.images.map((image) => image.directory),
-      imageName: document.images.map((image) => image.filename)
+      imageName: document.images.map((image) => image.filename),
     };
   }
 
@@ -198,7 +198,10 @@ export class DocumentService {
     const saveDoc = await this.DocumentRepo.save(document);
 
     for (let i = 0; i < body.image.length; i++) {
-      const directory = await this.imageService.uploadOne(`${document.id}/${body.imageName[i]}`, body.image[i]);
+      const directory = await this.imageService.uploadOne(
+        `${document.id}/${body.imageName[i]}`,
+        body.image[i],
+      );
       if (directory) {
         const image = this.ImageRepo.create({
           document: saveDoc,
@@ -237,7 +240,6 @@ export class DocumentService {
       context: document.context,
       createdAt: document.createdAt,
     });
-
 
     await this.DocumentRepo.remove(document);
 
@@ -288,19 +290,50 @@ export class DocumentService {
     for (let i = 0; i < 3; i++) {
       if (i < document.images.length) {
         if (i >= updateDocumentDTO.image.length) {
-          await this.imageService.deleteOne(`${documentId}/${document.images[i].filename}`);
+          if (
+            document.images.findIndex((image) => {
+              return image.directory === `${document.images[i].filename}`;
+            }) === i
+          ) {
+            await this.imageService.deleteOne(
+              `${documentId}/${document.images[i].filename}`,
+            );
+          }
           await this.ImageRepo.remove(document.images[i]);
         } else {
-          const directory = document.images[i].directory;
-          if (updateDocumentDTO.image[i] !== directory) {
-            if (await this.imageService.deleteOne(`${documentId}/${document.images[i].filename}`)) {
-              console.log(`${document.images[i].filename}`);
-              await this.imageService.uploadOne(
-                `${documentId}/${updateDocumentDTO.imageName[i]}`,
-                updateDocumentDTO.image[i],
+          if (updateDocumentDTO.image[i] !== document.images[i].directory) {
+            console.log(updateDocumentDTO.image[i]);
+            console.log(
+              document.images.some(
+                (image) => image.directory === updateDocumentDTO.image[i],
+              ),
+            );
+            document.images.some((image) => console.log(image.directory));
+
+            if (
+              document.images.some(
+                (image) => image.directory === updateDocumentDTO.image[i],
+              )
+            ) {
+              await this.imageService.deleteOne(
+                `${documentId}/${document.images[i].filename}`,
               );
+              document.images[i].directory = updateDocumentDTO.image[i];
+              document.images[i].filename = updateDocumentDTO.imageName[i];
+              this.ImageRepo.save(document.images[i]);
             } else {
-              console.log('image not deleted');
+              if (
+                await this.imageService.deleteOne(
+                  `${documentId}/${document.images[i].filename}`,
+                )
+              ) {
+                await this.imageService.uploadOne(
+                  `${documentId}/${updateDocumentDTO.imageName[i]}`,
+                  updateDocumentDTO.image[i],
+                );
+              } else {
+                console.log('image not deleted');
+              }
             }
           }
         }
@@ -320,7 +353,7 @@ export class DocumentService {
           });
           await this.ImageRepo.save(image);
         } else {
-          console.log("error");
+          console.log('error');
         }
       }
     }
