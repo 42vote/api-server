@@ -69,18 +69,20 @@ export class CategoryService {
         categories.push(goods);
       }
     }
-    return categories.map((category) => ({
-      id: category.id,
-      title: category.title,
-      goalSettable: category.id === this.goodsCategoryId ? true : false,
-      goal:
-        category.id === this.goodsCategoryId ? 0 : category.docOption[0].goal,
-      expired:
-        category.id === this.goodsCategoryId
-          ? false
-          : category.docOption[0].docExpire < new Date(),
-      sort: category.sort,
-    })).sort((x, y) => x.sort - y.sort);
+    return categories
+      .map((category) => ({
+        id: category.id,
+        title: category.title,
+        goalSettable: category.id === this.goodsCategoryId ? true : false,
+        goal:
+          category.id === this.goodsCategoryId ? 0 : category.docOption[0].goal,
+        expired:
+          category.id === this.goodsCategoryId
+            ? false
+            : category.docOption[0].docExpire < new Date(),
+        sort: category.sort,
+      }))
+      .sort((x, y) => x.sort - y.sort);
   }
 
   async createCategory(body: CreateCategoryDto) {
@@ -89,6 +91,8 @@ export class CategoryService {
     category.title = body.title;
     category.multipleVote = body.multipleVote;
     category.anonymousVote = body.anonymousVote;
+    category.whitelistOnly = body.whitelistOnly;
+    category.whitelist = body.whitelist;
 
     // save the category to the database
     const savedCategory = await this.categoryRepo.save(category);
@@ -168,7 +172,7 @@ export class CategoryService {
       });
     }
     const category = await this.categoryRepo.findOne({
-      relations: { docOption: true },
+      relations: { docOption: true},
       where: { id: categoryId },
     });
     if (!category) {
@@ -180,6 +184,8 @@ export class CategoryService {
       title: category.title,
       multipleVote: category.multipleVote,
       anonymousVote: category.anonymousVote,
+      whitelistOnly: category.whitelistOnly,
+      whitelist: category.whitelist,
       createAt: category.createAt,
       updatedAt: category.updatedAt,
       goal: category.docOption[0].goal,
@@ -213,9 +219,14 @@ export class CategoryService {
     if (updateCategoryDTO.sort != null) {
       category.sort = updateCategoryDTO.sort;
     }
-    if (updateCategoryDTO.title || updateCategoryDTO.sort != null) {
-      await this.categoryRepo.save(category);
+    if (updateCategoryDTO.whitelistOnly != null) {
+      category.whitelistOnly = updateCategoryDTO.whitelistOnly;
     }
+    console.log(updateCategoryDTO.whitelist);
+    if (updateCategoryDTO.whitelist != null) {
+      category.whitelist = updateCategoryDTO.whitelist;
+    }
+    await this.categoryRepo.save(category);
     if (
       updateCategoryDTO.docExpire ||
       updateCategoryDTO.voteExpire ||

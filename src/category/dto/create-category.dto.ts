@@ -17,6 +17,13 @@ export default class CreateCategoryDto {
   @IsBoolean()
   anonymousVote: boolean;
 
+  @IsBoolean()
+  whitelistOnly: boolean;
+
+  @IsOptional()
+  @IsString({ each: true })
+  whitelist?: string[];
+
   @IsOptional()
   @IsValidDate()
   voteExpire?: Date;

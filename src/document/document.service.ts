@@ -220,7 +220,7 @@ export class DocumentService {
         category: true,
         author: true,
         images: true,
-        votes: { user: true },
+        votes: { user: true, document: true },
       },
     });
     if (!document) {
@@ -239,14 +239,16 @@ export class DocumentService {
       createdAt: document.createdAt,
     });
 
-    const result = await this.DocumentRepo.remove(document);
+
+    await this.DocumentRepo.remove(document);
+
     // delete docOption if category is "goods or 5"
     if (document.category.id === 5) {
       const customOption = document.option;
       await this.DocumentOptionRepo.remove(customOption);
     }
 
-    return result;
+    return;
   }
 
   async updateDocument(
@@ -273,7 +275,7 @@ export class DocumentService {
 
     document.title = updateDocumentDTO.title;
     document.context = updateDocumentDTO.context;
- 
+
     if (
       document.category.id === this.goodsCategoryId &&
       updateDocumentDTO.goal
