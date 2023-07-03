@@ -63,7 +63,7 @@ export class CategoryService {
     }
     if (searchCategoryDTO.isPosting === 'true') {
       categories = categories.filter((category) => {
-        return (category.docOption[0].voteExpire >= new Date() || !category.whitelistOnly || category.whitelist.includes(user.intraId) || );
+        return (category.docOption[0].voteExpire >= new Date() || !category.whitelistOnly || category.whitelist.includes(user.intraId));
       });
     }
 
