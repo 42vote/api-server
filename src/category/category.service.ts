@@ -61,9 +61,13 @@ export class CategoryService {
         return category.docOption[0].docExpire >= new Date();
       });
     }
+
     if (searchCategoryDTO.isPosting === 'true') {
       categories = categories.filter((category) => {
-        return (category.docOption[0].voteExpire >= new Date() || !category.whitelistOnly || category.whitelist.includes(user.intraId));
+        return (
+          category.docOption[0].voteExpire >= new Date() &&
+          (!category.whitelistOnly || category.whitelist.includes(user.intraId))
+        );
       });
     }
 
@@ -178,7 +182,7 @@ export class CategoryService {
       });
     }
     const category = await this.categoryRepo.findOne({
-      relations: { docOption: true},
+      relations: { docOption: true },
       where: { id: categoryId },
     });
     if (!category) {
