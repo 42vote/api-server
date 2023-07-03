@@ -302,14 +302,6 @@ export class DocumentService {
           await this.ImageRepo.remove(document.images[i]);
         } else {
           if (updateDocumentDTO.image[i] !== document.images[i].directory) {
-            console.log(updateDocumentDTO.image[i]);
-            console.log(
-              document.images.some(
-                (image) => image.directory === updateDocumentDTO.image[i],
-              ),
-            );
-            document.images.some((image) => console.log(image.directory));
-
             if (
               document.images.some(
                 (image) => image.directory === updateDocumentDTO.image[i],
@@ -327,10 +319,15 @@ export class DocumentService {
                   `${documentId}/${document.images[i].filename}`,
                 )
               ) {
-                await this.imageService.uploadOne(
+                const directory = await this.imageService.uploadOne(
                   `${documentId}/${updateDocumentDTO.imageName[i]}`,
                   updateDocumentDTO.image[i],
                 );
+                if (directory) {
+                  document.images[i].directory = directory;
+                  document.images[i].filename = `${updateDocumentDTO.imageName[i]}`,
+                  await this.ImageRepo.save(document.images[i]);
+                }
               } else {
                 console.log('image not deleted');
               }
