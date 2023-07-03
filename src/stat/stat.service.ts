@@ -6,17 +6,17 @@ import Vote from 'src/entity/vote.entity';
 import Document from 'src/entity/document.entity';
 import Category from 'src/entity/category.entity';
 import SearchStatCategoryDto from './dto/search-stat-category.dto';
-import { Readable } from "stream";
+import { Readable } from 'stream';
 import * as xlsx from 'xlsx';
 
 @Injectable()
 export class StatService {
   constructor(
     @InjectRepository(Vote) private voteRepo: Repository<Vote>,
-    @InjectRepository(Document) private documentRepo: Repository<Document>
+    @InjectRepository(Document) private documentRepo: Repository<Document>,
   ) {}
 
-  createExcelStream(sheetDatas: Array<{name: string, data: any[][]}>) {
+  createExcelStream(sheetDatas: Array<{ name: string; data: any[][] }>) {
     const book = xlsx.utils.book_new();
     for (const idx in sheetDatas) {
       const sheetData = sheetDatas[idx];
@@ -29,7 +29,7 @@ export class StatService {
     return this.#bufferToStream(buffer);
   }
 
-  #bufferToStream(buffer: any) { 
+  #bufferToStream(buffer: any) {
     var stream = new Readable();
     stream.push(buffer);
     stream.push(null);
@@ -38,12 +38,12 @@ export class StatService {
 
   async getVoteRich(search: SearchStatCategoryDto): Promise<any[][]> {
     const query = this.voteRepo
-    .createQueryBuilder('vote')
-    .innerJoin('vote.user', 'user')
-    .innerJoin('vote.document', 'document')
-    .innerJoin('document.category', 'category')
-    .innerJoin('document.author', 'author')
-    .where('1=1');
+      .createQueryBuilder('vote')
+      .innerJoin('vote.user', 'user')
+      .innerJoin('vote.document', 'document')
+      .innerJoin('document.category', 'category')
+      .innerJoin('document.author', 'author')
+      .where('1=1');
     if (search.categoryId != null)
       query.andWhere('category.id = :categoryId', search);
     query.orderBy('document.title', 'ASC');
@@ -51,15 +51,17 @@ export class StatService {
     query.select([
       'vote.id',
       'category.title',
+      'document.id',
       'document.title',
       'author.intraId',
       'user.intraId',
     ]);
     const res = await query.getMany();
     return [
-      ['Category', 'Document', 'Author', 'Voter'],
+      ['Category', 'DocumentId', 'Document', 'Author', 'Voter'],
       ...res.map((x) => [
         x.document.category.title,
+        x.document.id,
         x.document.title,
         x.document.author.intraId,
         x.user.intraId,
@@ -90,9 +92,10 @@ export class StatService {
     ]);
     const res = await query.getRawMany();
     return [
-      ['Category', 'Document', 'Author', 'goal', 'Votes'],
+      ['Category', 'DocumentId', 'Document', 'Author', 'goal', 'Votes'],
       ...res.map((x) => [
         x['category_title'],
+        x['document_id'],
         x['document_title'],
         x['author_intraId'],
         x['option_goal'],
