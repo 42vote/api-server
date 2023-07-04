@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export default class SearchParticipantDto {
   @Type(() => Number)
@@ -14,4 +14,8 @@ export default class SearchParticipantDto {
   @IsString()
   @IsOptional()
   voterIntraId?: string;
+
+  @IsBoolean()
+  @IsOptional()
+  anonymousVote?: boolean
 }
