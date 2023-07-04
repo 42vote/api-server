@@ -55,6 +55,11 @@ export class UserController {
     if (user == null) throw new InternalServerErrorException('not found user');
     const token = await this.authService.createToken(user);
     if (token == null) throw new InternalServerErrorException('asdf');
+
+    // 카뎃을 위한 사이트. 피씨너는 로그인할 수 없다.
+    if (user.coalition == null)
+      throw new UnauthorizedException('for cadet');
+
     this.userService.updateUser({
       ...user,
       jwtRefreshToken: token.refresh_token,
