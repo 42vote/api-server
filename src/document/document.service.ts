@@ -366,4 +366,15 @@ export class DocumentService {
     }
     return document;
   }
+
+  async getDocumentRich(documentId: number) {
+    const document = await this.DocumentRepo.findOne({
+      where: { id: documentId },
+      relations: ['option', 'category', 'author'],
+    });
+    if (!document) {
+      throw new NotFoundException(`Document with ID ${documentId} not found`);
+    }
+    return document;
+  }
 }

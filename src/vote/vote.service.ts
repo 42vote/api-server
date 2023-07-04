@@ -91,6 +91,7 @@ export class VoteService {
       .innerJoin('vote.user', 'voter')
       .innerJoin('vote.document', 'document')
       .innerJoin('document.author', 'author')
+      .innerJoin('document.category', 'category')
       .where('1=1');
     if (search.documentId != null)
       query.andWhere('document.id = :documentId', search);
@@ -98,6 +99,8 @@ export class VoteService {
       query.andWhere('voter.intraId = :voterIntraId', search);
     if (search.authorIntraId != null)
       query.andWhere('author.intraId = :authorIntraId', search);
+    if (search.anonymousVote != null)
+      query.andWhere('category.anonymousVote = :anonymousVote', search);
     query.setFindOptions({ relations: ['user', 'document'] });
     return await query
       .select([

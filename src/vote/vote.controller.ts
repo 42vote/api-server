@@ -44,6 +44,7 @@ export class VoteController {
   async getVotePatricipant(@Req() req, @Query() search: SearchParticipantDto) {
     const intraId = req.user?.intraId;
     const isAdmin = req.user?.isAdmin;
+    search.anonymousVote = false;
     if (intraId == null) throw new InternalServerErrorException();
     if (isAdmin)
       return await this.voteService.getParticipant({
@@ -68,9 +69,11 @@ export class VoteController {
   async postVote(@Req() req, @Body() body: CreateVoteDto) {
     const intraId = req.user.intraId;
     if (intraId == null) throw new InternalServerErrorException();
-    const document = await this.documentService.getDocument(body.documentId);
+    const document = await this.documentService.getDocumentRich(body.documentId);
     if (document == null)
       throw new BadRequestException('document is not found');
+    if (document.author.intraId === intraId)
+      throw new ForbiddenException('can not support self');
     const now = Date.now();
     const isDocVoteExpired =
       new Date(document.option.voteExpire).getTime() < now ||
