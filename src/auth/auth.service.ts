@@ -92,7 +92,7 @@ export class AuthService {
         expiresIn: process.env.JWT_REFRESH_AGE,
       });
       const access_expire = +this.jwtService.decode(access_token)["exp"] * 1000;
-      const refresh_expire = +this.jwtService.decode(access_token)["exp"] * 1000;
+      const refresh_expire = +this.jwtService.decode(refresh_token)["exp"] * 1000;
       
       return { access_token, access_expire, refresh_token, refresh_expire };
     } catch (e) {
