@@ -5,6 +5,7 @@ import {
   InternalServerErrorException,
   NotFoundException,
   Param,
+  Patch,
   Post,
   Req,
   Res,
@@ -102,7 +103,7 @@ export class UserController {
     return;
   }
 
-  @Get('admin/:intraId')
+  @Patch('admin/:intraId')
   async setAdmin(@Param('intraId') intraId: string) {
     const user = await this.userService.getUser(intraId);
     if (!user) {
