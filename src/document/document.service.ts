@@ -174,7 +174,7 @@ export class DocumentService {
     voteTime.setDate(voteTime.getDate() + 30);
     docTime.setDate(docTime.getDate() + 37);
 
-    if (body.categoryId === 5 && body.goal) {
+    if (body.categoryId === this.goodsCategoryId && body.goal) {
       docOption = await this.DocumentOptionRepo.save({
         goal: body.goal,
         voteExpire: voteTime,
@@ -244,7 +244,7 @@ export class DocumentService {
     await this.DocumentRepo.remove(document);
 
     // delete docOption if category is "goods or 5"
-    if (document.category.id === 5) {
+    if (document.category.id === this.goodsCategoryId) {
       const customOption = document.option;
       await this.DocumentOptionRepo.remove(customOption);
     }
@@ -325,8 +325,10 @@ export class DocumentService {
                 );
                 if (directory) {
                   document.images[i].directory = directory;
-                  document.images[i].filename = `${updateDocumentDTO.imageName[i]}`,
-                  await this.ImageRepo.save(document.images[i]);
+                  (document.images[
+                    i
+                  ].filename = `${updateDocumentDTO.imageName[i]}`),
+                    await this.ImageRepo.save(document.images[i]);
                 }
               } else {
                 console.log('image not deleted');

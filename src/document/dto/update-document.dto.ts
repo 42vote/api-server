@@ -19,12 +19,12 @@ import {
   
 	@IsString({ each: true })
 	@ArrayMinSize(1)
-	@ArrayMaxSize(5)
+	@ArrayMaxSize(3)
 	image: string[];
 
 	@IsString({ each: true })
 	@ArrayMinSize(1)
-	@ArrayMaxSize(5)
+	@ArrayMaxSize(3)
 	imageName: string[];
   }
   
