@@ -8,10 +8,12 @@ import Category from 'src/entity/category.entity';
 import DocOption from 'src/entity/doc-option.entity';
 import Document from 'src/entity/document.entity';
 import Vote from 'src/entity/vote.entity';
+import { UserModule } from 'src/user/user.module';
 
 @Module({
   imports: [
     ConfigModule,
+    UserModule,
     TypeOrmModule.forFeature([User, Category, DocOption, Document, Vote]),
   ],
   providers: [CategoryService, ConfigService],
