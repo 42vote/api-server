@@ -47,11 +47,12 @@ export class DocumentController {
   @Post()
   async creatDocument(@Body() body: CreateDocumentDto, @Req() req: Request) {
     const category = await this.categoryRepo.findOne({
+      relations: { postWhitelist: true }, 
       where: { id: body.categoryId },
     });
     if (category.whitelistOnly === true) {
       if (
-        category.whitelist.some((user) => user === req['user'].intraId) ===
+        category.postWhitelist.some((user) => user.intraId === req['user'].intraId) ===
         false
       ) {
         throw new UnauthorizedException('Unauthorized to post document');

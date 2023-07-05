@@ -15,6 +15,7 @@ import { ConfigService } from '@nestjs/config';
 import Vote from 'src/entity/vote.entity';
 import UpdateCategoryDto from './dto/update-category.dto';
 import SearchCategoryDto from './dto/search-category.dto';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class CategoryService {
@@ -31,6 +32,7 @@ export class CategoryService {
     @InjectRepository(Vote)
     private voteRepo: Repository<Vote>,
     private configService: ConfigService,
+    private userService: UserService,
   ) {
     const goodsCategoryId = Number(
       this.configService.get<string>('GOODS_CATEGORY_ID'),
@@ -49,7 +51,7 @@ export class CategoryService {
         id: Not(this.goodsCategoryId),
         hide: false,
       },
-      relations: { docOption: true },
+      relations: { docOption: true, postWhitelist: true },
       order: { sort: 'ASC' },
     });
     if (searchCategoryDTO.expired === 'true') {
@@ -66,7 +68,8 @@ export class CategoryService {
       categories = categories.filter((category) => {
         return (
           category.docOption[0].voteExpire >= new Date() &&
-          (!category.whitelistOnly || category.whitelist.includes(user.intraId))
+          (category.whitelistOnly === false ||
+            this.#isInWhitelist(category, user.intraId))
         );
       });
     }
@@ -95,6 +98,11 @@ export class CategoryService {
       .sort((x, y) => x.sort - y.sort);
   }
 
+  #isInWhitelist(category: Category, intraId: string) {
+    const list = category.postWhitelist.map((user) => user.intraId.toString());
+    return list.includes(intraId);
+  }
+
   async createCategory(body: CreateCategoryDto) {
     // create a new category object from the DTO
     const category = new Category();
@@ -102,7 +110,9 @@ export class CategoryService {
     category.multipleVote = body.multipleVote;
     category.anonymousVote = body.anonymousVote;
     category.whitelistOnly = body.whitelistOnly;
-    category.whitelist = body.whitelist;
+    category.postWhitelist = await Promise.all(
+      body.whitelist.map((intraId) => this.userService.getUser(intraId)),
+    );
 
     // save the category to the database
     const savedCategory = await this.categoryRepo.save(category);
@@ -178,11 +188,12 @@ export class CategoryService {
   async detailCategory(categoryId: number) {
     if (categoryId === this.goodsCategoryId) {
       return await this.categoryRepo.findOne({
+        relations: { postWhitelist: true },
         where: { id: categoryId },
       });
     }
     const category = await this.categoryRepo.findOne({
-      relations: { docOption: true },
+      relations: { docOption: true, postWhitelist: true },
       where: { id: categoryId },
     });
     if (!category) {
@@ -195,7 +206,7 @@ export class CategoryService {
       multipleVote: category.multipleVote,
       anonymousVote: category.anonymousVote,
       whitelistOnly: category.whitelistOnly,
-      whitelist: category.whitelist,
+      whitelist: category.postWhitelist.map((user) => user.intraId.toString()),
       createAt: category.createAt,
       updatedAt: category.updatedAt,
       goal: category.docOption[0].goal,
@@ -234,7 +245,11 @@ export class CategoryService {
     }
     console.log(updateCategoryDTO.whitelist);
     if (updateCategoryDTO.whitelist != null) {
-      category.whitelist = updateCategoryDTO.whitelist;
+      category.postWhitelist = await Promise.all(
+        updateCategoryDTO.whitelist.map((intraId) =>
+          this.userService.getUser(intraId),
+        ),
+      );
     }
     await this.categoryRepo.save(category);
     if (

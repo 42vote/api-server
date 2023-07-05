@@ -6,6 +6,7 @@ import {
   UpdateDateColumn,
   OneToMany,
   ManyToMany,
+  JoinTable,
 } from 'typeorm';
 import DocOption from './doc-option.entity';
 import Document from './document.entity';
@@ -28,9 +29,6 @@ export default class Category {
   @Column({ default: false })
   whitelistOnly: boolean;
 
-  @Column({ type: 'simple-array' })
-  whitelist: string[];
-
   @Column({ default: 0 })
   sort: number;
 
@@ -49,5 +47,7 @@ export default class Category {
   @OneToMany(() => Document, (document) => document.category)
   documents: Document[];
 
-
+  @ManyToMany(() => User)
+  @JoinTable()
+  postWhitelist: User[];
 }
