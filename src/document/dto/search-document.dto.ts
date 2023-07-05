@@ -7,12 +7,14 @@ import {
   IsString,
   Min,
 } from 'class-validator';
+import * as dotenv from 'dotenv';
 
+dotenv.config();
 export default class SearchDocumentDto {
   @IsInt()
   @Min(0)
   @Transform(({ value }) => parseInt(value, 10))
-  categoryId: number = 5;
+  categoryId: number = Number(`${process.env.GOODS_CATEGORY_ID}`);
 
   @IsString()
   @IsIn(['true', 'false', 'all'])
