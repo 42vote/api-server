@@ -12,9 +12,12 @@ export class UserService {
   }
 
   async getUserId(intraId: string): Promise<number | null> {
-    const user =  await this.userRepo.findOne({ where: { intraId } });
-    if (user) { return user.id; }
-    else { return null; }
+    const user = await this.userRepo.findOne({ where: { intraId } });
+    if (user) {
+      return user.id;
+    } else {
+      return null;
+    }
   }
 
   async addUser(user: User): Promise<User | null> {
@@ -22,6 +25,11 @@ export class UserService {
   }
 
   async updateUser(user: User): Promise<User | null> {
+    return await this.userRepo.save(user);
+  }
+
+  async setAdmin(user: User) {
+    user.isAdmin = user.isAdmin === true ? false : true;
     return await this.userRepo.save(user);
   }
 }
