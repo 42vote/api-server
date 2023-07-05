@@ -214,7 +214,7 @@ export class DocumentService {
     return document;
   }
 
-  async deleteDocument(documentId: number) {
+  async deleteDocument(documentId: number, user) {
     const document = await this.DocumentRepo.findOne({
       where: { id: documentId },
       relations: {
@@ -227,6 +227,9 @@ export class DocumentService {
     });
     if (!document) {
       throw new NotFoundException(`Document with ID ${documentId} not found`);
+    }
+    if (document.author.id !== user.userId) {
+      throw new UnauthorizedException(`Only writer can edit document`);
     }
 
     await this.imageService.deleteDir(`${documentId}`);

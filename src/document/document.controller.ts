@@ -50,7 +50,10 @@ export class DocumentController {
       where: { id: body.categoryId },
     });
     if (category.whitelistOnly === true) {
-      if (category.whitelist.some((user) => user === req['user'].intraId) === false) {
+      if (
+        category.whitelist.some((user) => user === req['user'].intraId) ===
+        false
+      ) {
         throw new UnauthorizedException('Unauthorized to post document');
       }
     }
@@ -67,7 +70,10 @@ export class DocumentController {
   }
 
   @Delete(':document_id')
-  deleteDocument(@Param('document_id') documentId: number) {
-    return this.documentService.deleteDocument(documentId);
+  deleteDocument(
+    @Param('document_id') documentId: number,
+    @Req() req: Request,
+  ) {
+    return this.documentService.deleteDocument(documentId, req['user']);
   }
 }
