@@ -228,7 +228,7 @@ export class DocumentService {
     if (!document) {
       throw new NotFoundException(`Document with ID ${documentId} not found`);
     }
-    if (document.author.id !== user.userId) {
+    if (document.author.id !== user.userId && user.isAdmin == false) {
       throw new UnauthorizedException(`Only writer can edit document`);
     }
 
