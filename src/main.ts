@@ -7,6 +7,7 @@ import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app.module';
 import * as express from 'express';
 import { ValidationPipe } from '@nestjs/common';
+import { SQLExceptionFilter } from './logger/filter/sql.exception.filter';
 
 const cookieAuth = (req: Request, res: Response, next: NextFunction) => {
   req.headers['Authorization'] = req.get('Authorization');
@@ -21,7 +22,7 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
 
   app.setGlobalPrefix('api');
-
+  app.useGlobalFilters(new SQLExceptionFilter);
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
