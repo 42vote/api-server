@@ -5,6 +5,7 @@ import {
   InternalServerErrorException,
   NotFoundException,
   Param,
+  Patch,
   Post,
   Req,
   Res,
@@ -57,8 +58,7 @@ export class UserController {
     if (token == null) throw new InternalServerErrorException('asdf');
 
     // 카뎃을 위한 사이트. 피씨너는 로그인할 수 없다.
-    if (user.coalition == null)
-      throw new UnauthorizedException('for cadet');
+    if (user.coalition == null) throw new UnauthorizedException('for cadet');
 
     this.userService.updateUser({
       ...user,
@@ -97,9 +97,18 @@ export class UserController {
   @Get('find/:intraId')
   @UseGuards(AuthGuard)
   async findUser(@Param('intraId') intraId: string) {
-    if(!(await this.userService.getUser(intraId))) {
-      throw new NotFoundException()
+    if (!(await this.userService.getUser(intraId))) {
+      throw new NotFoundException();
     }
-    return ;
+    return;
+  }
+
+  @Patch('admin/:intraId')
+  async setAdmin(@Param('intraId') intraId: string) {
+    const user = await this.userService.getUser(intraId);
+    if (!user) {
+      throw new NotFoundException();
+    }
+    return this.userService.setAdmin(user);
   }
 }

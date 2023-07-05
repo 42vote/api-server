@@ -17,6 +17,7 @@ import { AuthGuard } from 'src/auth/auth.guard';
 import SizeCategoryDto from './dto/size-category.dto';
 import SearchCategoryDto from './dto/search-category.dto';
 import UpdateCategoryDto from './dto/update-category.dto';
+import { AuthAdminGuard } from 'src/auth/auth-admin.guard';
 
 @Controller('category')
 @UseGuards(AuthGuard)
@@ -32,6 +33,7 @@ export class CategoryController {
   }
 
   @Post()
+  @UseGuards(AuthAdminGuard)
   creatCategory(@Body() createCategoryDTO: CreateCategoryDto) {
     return this.categoryService.createCategory(createCategoryDTO);
   }
@@ -52,6 +54,7 @@ export class CategoryController {
   }
 
   @Patch(':categoryId')
+  @UseGuards(AuthAdminGuard)
   updateCategory(
     @Param('categoryId') categoryId: number,
     @Body() updateCategoryDTO: UpdateCategoryDto,
@@ -65,6 +68,7 @@ export class CategoryController {
   }
 
   @Patch('expire/:categoryId')
+  @UseGuards(AuthAdminGuard)
   expireCategory(@Param('categoryId') categoryId: number) {
     if (isNaN(categoryId)) {
       throw new BadRequestException('invalid category id');
@@ -73,6 +77,7 @@ export class CategoryController {
   }
 
   @Delete(':categoryId')
+  @UseGuards(AuthAdminGuard)
   hideCategory(@Param('categoryId') categoryId: number) {
     if (isNaN(categoryId)) {
       throw new BadRequestException('invalid category id');
