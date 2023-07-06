@@ -187,10 +187,19 @@ export class CategoryService {
 
   async detailCategory(categoryId: number) {
     if (categoryId === this.goodsCategoryId) {
-      return await this.categoryRepo.findOne({
-        relations: { postWhitelist: true },
+      const goodsCategory = await this.categoryRepo.findOne({
         where: { id: categoryId },
       });
+      return {
+        id: goodsCategory.id,
+        title: goodsCategory.title,
+        multipleVote: goodsCategory.multipleVote,
+        anonymousVote: goodsCategory.anonymousVote,
+        whitelistOnly: goodsCategory.whitelistOnly,
+        whitelist: [],
+        createAt: goodsCategory.createAt,
+        updatedAt: goodsCategory.updatedAt,
+      };
     }
     const category = await this.categoryRepo.findOne({
       relations: { docOption: true, postWhitelist: true },
