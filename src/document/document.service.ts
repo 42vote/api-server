@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -174,7 +175,10 @@ export class DocumentService {
     voteTime.setDate(voteTime.getDate() + 30);
     docTime.setDate(docTime.getDate() + 37);
 
-    if (body.categoryId === this.goodsCategoryId && body.goal) {
+    if (body.categoryId === this.goodsCategoryId) {
+      if (!body.goal) {
+        throw new BadRequestException('goal must be an integer number');
+      }
       docOption = await this.DocumentOptionRepo.save({
         goal: body.goal,
         voteExpire: voteTime,
