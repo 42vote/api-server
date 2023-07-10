@@ -120,12 +120,9 @@ export class CategoryService {
     // create a new doc option object from the DTO
     const docOption = new DocOption();
     docOption.goal = body.goal;
-    docOption.voteExpire = new Date(
-      body.voteExpire.toLocaleString('ko-KR', { timeZone: 'UTC' }),
-    );
-    docOption.docExpire = new Date(
-      body.docExpire.toLocaleString('ko-KR', { timeZone: 'UTC' }),
-    );
+    docOption.voteExpire = new Date(body.voteExpire);
+
+    docOption.docExpire = new Date(body.docExpire);
     docOption.category = savedCategory;
 
     // save the doc option to the database
@@ -252,7 +249,6 @@ export class CategoryService {
     if (updateCategoryDTO.whitelistOnly != null) {
       category.whitelistOnly = updateCategoryDTO.whitelistOnly;
     }
-    console.log(updateCategoryDTO.whitelist);
     if (updateCategoryDTO.whitelist != null) {
       category.postWhitelist = await Promise.all(
         updateCategoryDTO.whitelist.map((intraId) =>
@@ -267,25 +263,16 @@ export class CategoryService {
       updateCategoryDTO.goal
     ) {
       if (updateCategoryDTO.docExpire) {
-        documentOption.docExpire = new Date(
-          updateCategoryDTO.docExpire.toLocaleString('ko-KR', {
-            timeZone: 'UTC',
-          }),
-        );
+        documentOption.docExpire = new Date(updateCategoryDTO.docExpire);
       }
       if (updateCategoryDTO.voteExpire) {
-        documentOption.voteExpire = new Date(
-          updateCategoryDTO.voteExpire.toLocaleString('ko-KR', {
-            timeZone: 'UTC',
-          }),
-        );
+        documentOption.voteExpire = new Date(updateCategoryDTO.voteExpire);
       }
       if (updateCategoryDTO.goal) {
         documentOption.goal = updateCategoryDTO.goal;
       }
       await this.documentOptionRepo.save(documentOption);
     }
-
     return {
       id: category.id,
       title: category.title,
@@ -309,7 +296,6 @@ export class CategoryService {
     });
 
     const expireTime = new Date();
-
     return this.documentOptionRepo.update(docOptions[0].id, {
       voteExpire: expireTime,
       docExpire: expireTime,
@@ -328,7 +314,6 @@ export class CategoryService {
     });
 
     const expireTime = new Date();
-
     await this.documentOptionRepo.update(docOptions.id, {
       voteExpire: expireTime,
       docExpire: expireTime,
