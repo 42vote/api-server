@@ -19,8 +19,7 @@ import Image from 'src/entity/image.entity';
 import DocumentLog from 'src/entity/document-log.entity';
 import UpdateDocumentDto from './dto/update-document.dto';
 import { ConfigService } from '@nestjs/config';
-import * as moment from 'moment-timezone'
-
+import * as moment from 'moment-timezone';
 
 @Injectable()
 export class DocumentService {
@@ -120,7 +119,7 @@ export class DocumentService {
       title: doc.title,
       goal: doc.option.goal,
       voteCnt: doc.votes.length,
-      voteExpired: doc.option.voteExpire < new Date(),
+      voteExpired: doc.option.voteExpire < new Date() || doc.option.voteStart > new Date(),
       image: doc.images[0] ? doc.images[0].directory : null,
     }));
   }
@@ -151,7 +150,12 @@ export class DocumentService {
       multipleVote: document.category.multipleVote,
       anonymousVote: document.category.anonymousVote,
       createAt: document.createdAt,
-      voteExpiredAt: moment(document.option.voteExpire).tz('Asia/Seoul').format(),
+      voteStratedAt: moment(document.option.voteStart)
+        .tz('Asia/Seoul')
+        .format(),
+      voteExpiredAt: moment(document.option.voteExpire)
+        .tz('Asia/Seoul')
+        .format(),
       goal: document.option.goal,
       voteCnt: document.votes.length,
       isVote:
@@ -161,7 +165,11 @@ export class DocumentService {
             userId: user.userId,
           })
         ).length !== 0, // need to change
-      isVoteExpired: document.option.voteExpire < new Date() ? true : false,
+      isVoteExpired:
+        document.option.voteExpire < new Date() ||
+        document.option.voteStart > new Date()
+          ? true
+          : false,
       image: document.images.map((image) => image.directory),
       imageName: document.images.map((image) => image.filename),
     };
@@ -172,6 +180,7 @@ export class DocumentService {
 
     const voteTime = new Date();
     const docTime = new Date();
+    const startTime = new Date();
     voteTime.setDate(voteTime.getDate() + 30);
     docTime.setDate(docTime.getDate() + 37);
 
@@ -181,7 +190,9 @@ export class DocumentService {
       }
       docOption = await this.DocumentOptionRepo.save({
         goal: body.goal,
+        voteStart: startTime,
         voteExpire: voteTime,
+        docStart: startTime,
         docExpire: docTime, // set a default value for docExpire
         category: { id: body.categoryId }, // set the category relationship
       });
