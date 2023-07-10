@@ -14,7 +14,15 @@ export default class UpdateCategoryDto {
 
   @IsOptional()
   @IsValidDate()
+  voteStart?: Date;
+
+  @IsOptional()
+  @IsValidDate()
   voteExpire?: Date;
+
+  @IsOptional()
+  @IsValidDate()
+  docStart?: Date;
 
   @IsOptional()
   @IsValidDate()
