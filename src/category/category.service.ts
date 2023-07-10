@@ -16,6 +16,7 @@ import Vote from 'src/entity/vote.entity';
 import UpdateCategoryDto from './dto/update-category.dto';
 import SearchCategoryDto from './dto/search-category.dto';
 import { UserService } from 'src/user/user.service';
+import * as moment from 'moment-timezone'
 
 @Injectable()
 export class CategoryService {
@@ -82,6 +83,7 @@ export class CategoryService {
         categories.push(goods);
       }
     }
+    
     return categories
       .map((category) => ({
         id: category.id,
@@ -205,7 +207,7 @@ export class CategoryService {
     if (!category) {
       throw new NotFoundException(`Category with ID ${categoryId} not found`);
     }
-
+    
     return {
       id: category.id,
       title: category.title,
@@ -216,8 +218,8 @@ export class CategoryService {
       createAt: category.createAt,
       updatedAt: category.updatedAt,
       goal: category.docOption[0].goal,
-      voteExpire: category.docOption[0].voteExpire,
-      docExpire: category.docOption[0].docExpire,
+      voteExpire: moment(category.docOption[0].voteExpire).tz('Asia/Seoul').format(),
+      docExpire: moment(category.docOption[0].voteExpire).tz('Asia/Seoul').format(),
     };
   }
 
