@@ -15,7 +15,7 @@ export default class SearchVoteDto {
   @IsNumber()
   @IsOptional()
   userId?: number;
-  
+
   @Type(() => Number)
   @IsNumber()
   @IsOptional()

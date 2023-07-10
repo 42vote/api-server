@@ -4,8 +4,8 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { LessThan, MoreThan, MoreThanOrEqual, Not, Repository } from 'typeorm';
-import { InjectRepository, getDataSourcePrefix } from '@nestjs/typeorm';
+import { MoreThan, Not, Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 import Category from 'src/entity/category.entity';
 import DocOption from 'src/entity/doc-option.entity';
 import CreateCategoryDto from './dto/create-category.dto';

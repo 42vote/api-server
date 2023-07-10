@@ -25,9 +25,11 @@ export class StatController {
     res.header('Content-Disposition', 'attachment; filename=data.xlsx');
     const votes = await this.statService.getVoteRich({ categoryId });
     const documents = await this.statService.getDocumentRich({ categoryId });
-    this.statService.createExcelStream([
-      { name: 'document', data: documents },
-      { name: 'vote', data: votes },
-    ]).pipe(res);
+    this.statService
+      .createExcelStream([
+        { name: 'document', data: documents },
+        { name: 'vote', data: votes },
+      ])
+      .pipe(res);
   }
 }

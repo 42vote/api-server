@@ -15,9 +15,7 @@ import Document from 'src/entity/document.entity';
 import Vote from 'src/entity/vote.entity';
 import { AwsS3Service } from 'src/aws-s3/aws-s3.service';
 import { VoteService } from 'src/vote/vote.service';
-import SearchVoteDto from 'src/vote/dto/search-vote.dto';
 import Image from 'src/entity/image.entity';
-import { doc } from 'prettier';
 import DocumentLog from 'src/entity/document-log.entity';
 import UpdateDocumentDto from './dto/update-document.dto';
 import { ConfigService } from '@nestjs/config';
@@ -240,7 +238,7 @@ export class DocumentService {
     this.ImageRepo.remove(document.images);
     document.votes.map((vote) => this.voteService.deleteVote(vote));
 
-    const documentLog = await this.DocumentLogRepo.save({
+    await this.DocumentLogRepo.save({
       title: document.title,
       category: document.category.title,
       author: document.author.intraId,

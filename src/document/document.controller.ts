@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -11,8 +10,8 @@ import {
   Req,
   UnauthorizedException,
   UseGuards,
-  ValidationPipe,
 } from '@nestjs/common';
+import { Request } from 'express';
 import { DocumentService } from './document.service';
 import CreateDocumentDto from './dto/create-document.dto';
 import SearchDocumentDto from './dto/search-document.dto';
@@ -47,13 +46,14 @@ export class DocumentController {
   @Post()
   async creatDocument(@Body() body: CreateDocumentDto, @Req() req: Request) {
     const category = await this.categoryRepo.findOne({
-      relations: { postWhitelist: true }, 
+      relations: { postWhitelist: true },
       where: { id: body.categoryId },
     });
     if (category.whitelistOnly === true) {
       if (
-        category.postWhitelist.some((user) => user.intraId === req['user'].intraId) ===
-        false
+        category.postWhitelist.some(
+          (user) => user.intraId === req['user'].intraId,
+        ) === false
       ) {
         throw new UnauthorizedException('Unauthorized to post document');
       }
