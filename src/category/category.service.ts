@@ -219,7 +219,7 @@ export class CategoryService {
       updatedAt: category.updatedAt,
       goal: category.docOption[0].goal,
       voteExpire: moment(category.docOption[0].voteExpire).tz('Asia/Seoul').format(),
-      docExpire: moment(category.docOption[0].voteExpire).tz('Asia/Seoul').format(),
+      docExpire: moment(category.docOption[0].docExpire).tz('Asia/Seoul').format(),
     };
   }
 
