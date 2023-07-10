@@ -19,6 +19,8 @@ import Image from 'src/entity/image.entity';
 import DocumentLog from 'src/entity/document-log.entity';
 import UpdateDocumentDto from './dto/update-document.dto';
 import { ConfigService } from '@nestjs/config';
+import * as moment from 'moment-timezone'
+
 
 @Injectable()
 export class DocumentService {
@@ -149,7 +151,7 @@ export class DocumentService {
       multipleVote: document.category.multipleVote,
       anonymousVote: document.category.anonymousVote,
       createAt: document.createdAt,
-      voteExpiredAt: document.option.voteExpire,
+      voteExpiredAt: moment(document.option.voteExpire).tz('Asia/Seoul').format(),
       goal: document.option.goal,
       voteCnt: document.votes.length,
       isVote:
