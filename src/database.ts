@@ -22,5 +22,14 @@ export const createTypeOrmOptions = async (
   synchronize: true,
   // timezone: 'Asia/Seoul',
   // loggin: false,
-  entities: [User, Document, DocumentLog, Category, DocOption, Vote, VoteLog, Image],
+  entities: [
+    User,
+    Document,
+    DocumentLog,
+    Category,
+    DocOption,
+    Vote,
+    VoteLog,
+    Image,
+  ],
 });

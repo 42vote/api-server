@@ -22,7 +22,7 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
 
   app.setGlobalPrefix('api');
-  app.useGlobalFilters(new SQLExceptionFilter);
+  app.useGlobalFilters(new SQLExceptionFilter());
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
@@ -33,7 +33,7 @@ async function bootstrap() {
 
   app.enableCors({
     origin: [
-      'http://localhost:3000',  
+      'http://localhost:3000',
       'http://localhost:3001',
       // process.env.CLIENT_DOMAIN,
       configService.get('CLIENT_DOMAIN'),

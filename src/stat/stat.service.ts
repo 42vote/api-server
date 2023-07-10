@@ -1,10 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import User from 'src/entity/user.entity';
 import Vote from 'src/entity/vote.entity';
 import Document from 'src/entity/document.entity';
-import Category from 'src/entity/category.entity';
 import SearchStatCategoryDto from './dto/search-stat-category.dto';
 import { Readable } from 'stream';
 import * as xlsx from 'xlsx';
@@ -30,7 +28,7 @@ export class StatService {
   }
 
   #bufferToStream(buffer: any) {
-    var stream = new Readable();
+    const stream = new Readable();
     stream.push(buffer);
     stream.push(null);
     return stream;
