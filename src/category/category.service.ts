@@ -339,7 +339,9 @@ export class CategoryService {
 
     const expireTime = new Date();
     return this.documentOptionRepo.update(docOptions[0].id, {
+      voteStart: expireTime,
       voteExpire: expireTime,
+      docStart: expireTime,
       docExpire: expireTime,
     });
 
@@ -357,7 +359,9 @@ export class CategoryService {
 
     const expireTime = new Date();
     await this.documentOptionRepo.update(docOptions.id, {
+      voteStart: expireTime,
       voteExpire: expireTime,
+      docStart: expireTime,
       docExpire: expireTime,
     });
 
