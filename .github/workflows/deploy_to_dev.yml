@@ -1,0 +1,79 @@
+name: Deploy to DEV_EB
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  buildAndTest:
+    if: github.ref == 'refs/heads/develop'
+    name: CI Pipeline
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: ['16.x']
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install dependencies
+        run: npm install
+
+  deploy:
+    if: github.ref == 'refs/heads/develop'
+    name: CD Pipeline
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: ['16.x']
+    needs: buildAndTest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Create env file
+        run: |
+          touch .env
+          echo PORT=8081 >> .env
+          echo NODE_ENV=${{ secrets.NODE_ENV }} >> .env
+          cat .env
+      - name: Install Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install AWS CLI 2
+        run: |
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip awscliv2.zip
+          which aws
+          sudo ./aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --update
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws_access_key: ${{ secrets.DEV_AWS_ACCESS_KEY_ID }}
+          aws_secret_key: ${{ secrets.DEV_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Generate deployment package
+        run: |
+          npm run build
+          make
+      - name: Deploy to EB
+        uses: einaregilsson/beanstalk-deploy@v14
+        with:
+          aws_access_key: ${{ secrets.DEV_AWS_ACCESS_KEY_ID }}
+          aws_secret_key: ${{ secrets.DEV_AWS_SECRET_ACCESS_KEY }}
+          application_name: 42vote_develop
+          environment_name: 42votedevelop-env
+          region: ${{ secrets.AWS_REGION }}
+          version_label: ${{github.SHA}}
+          deployment_package: app.zip
