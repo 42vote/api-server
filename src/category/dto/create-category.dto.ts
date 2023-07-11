@@ -14,9 +14,8 @@ export default class CreateCategoryDto {
   @IsBoolean()
   whitelistOnly: boolean;
 
-  @IsOptional()
   @IsString({ each: true })
-  whitelist?: string[];
+  whitelist: string[];
 
   @IsOptional()
   @IsValidDate()
