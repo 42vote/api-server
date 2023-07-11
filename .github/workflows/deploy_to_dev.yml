@@ -3,11 +3,10 @@ name: Deploy to DEV_EB
 on:
   push:
     branches:
-      - main
+      - develop
 
 jobs:
   buildAndTest:
-    if: github.ref == 'refs/heads/develop'
     name: CI Pipeline
     runs-on: ubuntu-latest
     strategy:
@@ -26,7 +25,6 @@ jobs:
         run: npm install
 
   deploy:
-    if: github.ref == 'refs/heads/develop'
     name: CD Pipeline
     runs-on: ubuntu-latest
 
