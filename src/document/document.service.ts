@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -14,12 +15,11 @@ import Document from 'src/entity/document.entity';
 import Vote from 'src/entity/vote.entity';
 import { AwsS3Service } from 'src/aws-s3/aws-s3.service';
 import { VoteService } from 'src/vote/vote.service';
-import SearchVoteDto from 'src/vote/dto/search-vote.dto';
 import Image from 'src/entity/image.entity';
-import { doc } from 'prettier';
 import DocumentLog from 'src/entity/document-log.entity';
 import UpdateDocumentDto from './dto/update-document.dto';
 import { ConfigService } from '@nestjs/config';
+import * as moment from 'moment-timezone';
 
 @Injectable()
 export class DocumentService {
@@ -119,7 +119,7 @@ export class DocumentService {
       title: doc.title,
       goal: doc.option.goal,
       voteCnt: doc.votes.length,
-      voteExpired: doc.option.voteExpire < new Date(),
+      voteExpired: doc.option.voteExpire < new Date() || doc.option.voteStart > new Date(),
       image: doc.images[0] ? doc.images[0].directory : null,
     }));
   }
@@ -150,7 +150,12 @@ export class DocumentService {
       multipleVote: document.category.multipleVote,
       anonymousVote: document.category.anonymousVote,
       createAt: document.createdAt,
-      voteExpiredAt: document.option.voteExpire,
+      voteStratedAt: moment(document.option.voteStart)
+        .tz('Asia/Seoul')
+        .format(),
+      voteExpiredAt: moment(document.option.voteExpire)
+        .tz('Asia/Seoul')
+        .format(),
       goal: document.option.goal,
       voteCnt: document.votes.length,
       isVote:
@@ -160,7 +165,11 @@ export class DocumentService {
             userId: user.userId,
           })
         ).length !== 0, // need to change
-      isVoteExpired: document.option.voteExpire < new Date() ? true : false,
+      isVoteExpired:
+        document.option.voteExpire < new Date() ||
+        document.option.voteStart > new Date()
+          ? true
+          : false,
       image: document.images.map((image) => image.directory),
       imageName: document.images.map((image) => image.filename),
     };
@@ -171,13 +180,19 @@ export class DocumentService {
 
     const voteTime = new Date();
     const docTime = new Date();
+    const startTime = new Date();
     voteTime.setDate(voteTime.getDate() + 30);
     docTime.setDate(docTime.getDate() + 37);
 
-    if (body.categoryId === this.goodsCategoryId && body.goal) {
+    if (body.categoryId === this.goodsCategoryId) {
+      if (!body.goal) {
+        throw new BadRequestException('goal must be an integer number');
+      }
       docOption = await this.DocumentOptionRepo.save({
         goal: body.goal,
+        voteStart: startTime,
         voteExpire: voteTime,
+        docStart: startTime,
         docExpire: docTime, // set a default value for docExpire
         category: { id: body.categoryId }, // set the category relationship
       });
@@ -236,7 +251,7 @@ export class DocumentService {
     this.ImageRepo.remove(document.images);
     document.votes.map((vote) => this.voteService.deleteVote(vote));
 
-    const documentLog = await this.DocumentLogRepo.save({
+    await this.DocumentLogRepo.save({
       title: document.title,
       category: document.category.title,
       author: document.author.intraId,

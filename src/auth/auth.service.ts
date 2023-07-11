@@ -47,12 +47,15 @@ export class AuthService {
           Authorization: `Bearer ${token.access_token}`,
         },
       }).then((x) => x.json());
-      const coalitions = await fetch(`https://api.intra.42.fr/v2/users/${rawUser.login}/coalitions`, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token.access_token}`,
+      const coalitions = await fetch(
+        `https://api.intra.42.fr/v2/users/${rawUser.login}/coalitions`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token.access_token}`,
+          },
         },
-      }).then(x => x.json());
+      ).then((x) => x.json());
       const coalition = coalitions[0]?.slug;
       const expireTime = (+token.expires_in - 200) * 1000;
       const accessTokenExpiredAt = new Date(new Date().getTime() + expireTime);
@@ -91,9 +94,10 @@ export class AuthService {
         secret: process.env.JWT_REFRESH_SECRET,
         expiresIn: process.env.JWT_REFRESH_AGE,
       });
-      const access_expire = +this.jwtService.decode(access_token)["exp"] * 1000;
-      const refresh_expire = +this.jwtService.decode(refresh_token)["exp"] * 1000;
-      
+      const access_expire = +this.jwtService.decode(access_token)['exp'] * 1000;
+      const refresh_expire =
+        +this.jwtService.decode(refresh_token)['exp'] * 1000;
+
       return { access_token, access_expire, refresh_token, refresh_expire };
     } catch (e) {
       console.log('auth.service', e);

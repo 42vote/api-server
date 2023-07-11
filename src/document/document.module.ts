@@ -12,7 +12,6 @@ import { AwsS3Module } from 'src/aws-s3/aws-s3.module';
 import Image from 'src/entity/image.entity';
 import { UserModule } from 'src/user/user.module';
 import { VoteModule } from 'src/vote/vote.module';
-import { VoteService } from 'src/vote/vote.service';
 import DocumentLog from 'src/entity/document-log.entity';
 
 @Module({

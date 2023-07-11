@@ -1,4 +1,4 @@
-import { Module, ValidationPipe, forwardRef } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import User from 'src/entity/user.entity';
@@ -9,7 +9,6 @@ import { VoteController } from './vote.controller';
 import { VoteService } from './vote.service';
 import { DocumentModule } from 'src/document/document.module';
 import { UserModule } from 'src/user/user.module';
-import { APP_PIPE } from '@nestjs/core';
 import { CategoryModule } from 'src/category/category.module';
 
 @Module({

@@ -32,7 +32,7 @@ export default class Category {
   @Column({ default: 0 })
   sort: number;
 
-  @Column({ default: false})
+  @Column({ default: false })
   hide: boolean;
 
   @CreateDateColumn()

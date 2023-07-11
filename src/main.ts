@@ -2,7 +2,6 @@ import { NestFactory } from '@nestjs/core';
 import * as cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import { NextFunction, Request } from 'express';
-import rateLimit from 'express-rate-limit';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app.module';
 import * as express from 'express';
@@ -22,7 +21,7 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
 
   app.setGlobalPrefix('api');
-  app.useGlobalFilters(new SQLExceptionFilter);
+  app.useGlobalFilters(new SQLExceptionFilter());
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
@@ -33,7 +32,7 @@ async function bootstrap() {
 
   app.enableCors({
     origin: [
-      'http://localhost:3000',  
+      'http://localhost:3000',
       'http://localhost:3001',
       // process.env.CLIENT_DOMAIN,
       configService.get('CLIENT_DOMAIN'),

@@ -6,11 +6,9 @@ import {
   ForbiddenException,
   Get,
   InternalServerErrorException,
-  NotFoundException,
   Post,
   Query,
   Req,
-  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { DocumentService } from 'src/document/document.service';
@@ -69,7 +67,9 @@ export class VoteController {
   async postVote(@Req() req, @Body() body: CreateVoteDto) {
     const intraId = req.user.intraId;
     if (intraId == null) throw new InternalServerErrorException();
-    const document = await this.documentService.getDocumentRich(body.documentId);
+    const document = await this.documentService.getDocumentRich(
+      body.documentId,
+    );
     if (document == null)
       throw new BadRequestException('document is not found');
     if (document.author.intraId === intraId)

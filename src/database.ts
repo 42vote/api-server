@@ -20,7 +20,16 @@ export const createTypeOrmOptions = async (
   password: configService.get<string>('DB_PASSWORD'),
   database: configService.get<string>('DB_DATABASE'),
   synchronize: true,
-  // timezone: 'Asia/Seoul',
+  timezone: 'Asia/Seoul',
   // loggin: false,
-  entities: [User, Document, DocumentLog, Category, DocOption, Vote, VoteLog, Image],
+  entities: [
+    User,
+    Document,
+    DocumentLog,
+    Category,
+    DocOption,
+    Vote,
+    VoteLog,
+    Image,
+  ],
 });

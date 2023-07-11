@@ -4,8 +4,8 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { LessThan, MoreThan, MoreThanOrEqual, Not, Repository } from 'typeorm';
-import { InjectRepository, getDataSourcePrefix } from '@nestjs/typeorm';
+import { LessThan, MoreThan, Not, Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 import Category from 'src/entity/category.entity';
 import DocOption from 'src/entity/doc-option.entity';
 import CreateCategoryDto from './dto/create-category.dto';
@@ -16,6 +16,7 @@ import Vote from 'src/entity/vote.entity';
 import UpdateCategoryDto from './dto/update-category.dto';
 import SearchCategoryDto from './dto/search-category.dto';
 import { UserService } from 'src/user/user.service';
+import * as moment from 'moment-timezone';
 
 @Injectable()
 export class CategoryService {
@@ -56,11 +57,17 @@ export class CategoryService {
     });
     if (searchCategoryDTO.expired === 'true') {
       categories = categories.filter((category) => {
-        return category.docOption[0].docExpire < new Date();
+        return (
+          category.docOption[0].docExpire < new Date() ||
+          category.docOption[0].docStart > new Date()
+        );
       });
     } else if (searchCategoryDTO.expired === 'false') {
       categories = categories.filter((category) => {
-        return category.docOption[0].docExpire >= new Date();
+        return (
+          category.docOption[0].docExpire >= new Date() &&
+          category.docOption[0].docStart <= new Date()
+        );
       });
     }
 
@@ -68,6 +75,7 @@ export class CategoryService {
       categories = categories.filter((category) => {
         return (
           category.docOption[0].voteExpire >= new Date() &&
+          category.docOption[0].docStart <= new Date() &&
           (category.whitelistOnly === false ||
             this.#isInWhitelist(category, user.intraId))
         );
@@ -82,6 +90,7 @@ export class CategoryService {
         categories.push(goods);
       }
     }
+
     return categories
       .map((category) => ({
         id: category.id,
@@ -92,7 +101,8 @@ export class CategoryService {
         expired:
           category.id === this.goodsCategoryId
             ? false
-            : category.docOption[0].docExpire < new Date(),
+            : category.docOption[0].docExpire < new Date() ||
+              category.docOption[0].docStart > new Date(),
         sort: category.sort,
       }))
       .sort((x, y) => x.sort - y.sort);
@@ -120,12 +130,10 @@ export class CategoryService {
     // create a new doc option object from the DTO
     const docOption = new DocOption();
     docOption.goal = body.goal;
-    docOption.voteExpire = new Date(
-      body.voteExpire.toLocaleString('ko-KR', { timeZone: 'UTC' }),
-    );
-    docOption.docExpire = new Date(
-      body.docExpire.toLocaleString('ko-KR', { timeZone: 'UTC' }),
-    );
+    docOption.voteStart = new Date(body.voteStart);
+    docOption.voteExpire = new Date(body.voteExpire);
+    docOption.docStart = new Date(body.docStart);
+    docOption.docExpire = new Date(body.docExpire);
     docOption.category = savedCategory;
 
     // save the doc option to the database
@@ -151,7 +159,10 @@ export class CategoryService {
         },
         where: {
           author: { id: userId },
-          option: { docExpire: MoreThan(new Date()) },
+          option: {
+            docExpire: MoreThan(new Date()),
+            docStart: LessThan(new Date()),
+          },
         },
       });
     } else if (query.myVote === 'true') {
@@ -163,7 +174,12 @@ export class CategoryService {
         relations: { document: { option: true } },
         where: {
           user: { id: userId },
-          document: { option: { docExpire: MoreThan(new Date()) } },
+          document: {
+            option: {
+              docExpire: MoreThan(new Date()),
+              docStart: LessThan(new Date()),
+            },
+          },
         },
       });
     } else {
@@ -175,7 +191,10 @@ export class CategoryService {
         relations: { author: true, option: true },
         where: {
           category: { id: query.categoryId },
-          option: { docExpire: MoreThan(new Date()) },
+          option: {
+            docExpire: MoreThan(new Date()),
+            docStart: LessThan(new Date()),
+          },
         },
       });
     }
@@ -219,8 +238,18 @@ export class CategoryService {
       createAt: category.createAt,
       updatedAt: category.updatedAt,
       goal: category.docOption[0].goal,
-      voteExpire: category.docOption[0].voteExpire,
-      docExpire: category.docOption[0].docExpire,
+      voteStart: moment(category.docOption[0].voteStart)
+        .tz('Asia/Seoul')
+        .format(),
+      voteExpire: moment(category.docOption[0].voteExpire)
+        .tz('Asia/Seoul')
+        .format(),
+      docStart: moment(category.docOption[0].docStart)
+        .tz('Asia/Seoul')
+        .format(),
+      docExpire: moment(category.docOption[0].docExpire)
+        .tz('Asia/Seoul')
+        .format(),
     };
   }
 
@@ -252,7 +281,6 @@ export class CategoryService {
     if (updateCategoryDTO.whitelistOnly != null) {
       category.whitelistOnly = updateCategoryDTO.whitelistOnly;
     }
-    console.log(updateCategoryDTO.whitelist);
     if (updateCategoryDTO.whitelist != null) {
       category.postWhitelist = await Promise.all(
         updateCategoryDTO.whitelist.map((intraId) =>
@@ -262,30 +290,29 @@ export class CategoryService {
     }
     await this.categoryRepo.save(category);
     if (
+      updateCategoryDTO.docStart ||
       updateCategoryDTO.docExpire ||
+      updateCategoryDTO.voteStart ||
       updateCategoryDTO.voteExpire ||
       updateCategoryDTO.goal
     ) {
+      if (updateCategoryDTO.docStart) {
+        documentOption.docStart = new Date(updateCategoryDTO.docStart);
+      }
       if (updateCategoryDTO.docExpire) {
-        documentOption.docExpire = new Date(
-          updateCategoryDTO.docExpire.toLocaleString('ko-KR', {
-            timeZone: 'UTC',
-          }),
-        );
+        documentOption.docExpire = new Date(updateCategoryDTO.docExpire);
+      }
+      if (updateCategoryDTO.voteStart) {
+        documentOption.voteStart = new Date(updateCategoryDTO.voteStart);
       }
       if (updateCategoryDTO.voteExpire) {
-        documentOption.voteExpire = new Date(
-          updateCategoryDTO.voteExpire.toLocaleString('ko-KR', {
-            timeZone: 'UTC',
-          }),
-        );
+        documentOption.voteExpire = new Date(updateCategoryDTO.voteExpire);
       }
       if (updateCategoryDTO.goal) {
         documentOption.goal = updateCategoryDTO.goal;
       }
       await this.documentOptionRepo.save(documentOption);
     }
-
     return {
       id: category.id,
       title: category.title,
@@ -294,7 +321,9 @@ export class CategoryService {
       createAt: category.createAt,
       updatedAt: category.updatedAt,
       goal: documentOption.goal,
+      voteStart: documentOption.voteStart,
       voteExpire: documentOption.voteExpire,
+      docStart: documentOption.docStart,
       docExpire: documentOption.docExpire,
     };
   }
@@ -309,9 +338,10 @@ export class CategoryService {
     });
 
     const expireTime = new Date();
-
     return this.documentOptionRepo.update(docOptions[0].id, {
+      voteStart: expireTime,
       voteExpire: expireTime,
+      docStart: expireTime,
       docExpire: expireTime,
     });
 
@@ -328,9 +358,10 @@ export class CategoryService {
     });
 
     const expireTime = new Date();
-
     await this.documentOptionRepo.update(docOptions.id, {
+      voteStart: expireTime,
       voteExpire: expireTime,
+      docStart: expireTime,
       docExpire: expireTime,
     });
 
