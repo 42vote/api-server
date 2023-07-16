@@ -20,7 +20,7 @@ export default class Document {
   @Column()
   title: string;
 
-  @Column({ length: 500 })
+  @Column()
   context: string;
 
   @ManyToOne(() => User)
