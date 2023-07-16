@@ -17,5 +17,5 @@ export default class SearchParticipantDto {
 
   @IsBoolean()
   @IsOptional()
-  anonymousVote?: boolean
+  anonymousVote?: boolean;
 }

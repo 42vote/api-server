@@ -11,6 +11,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
+import { Request } from 'express';
 import { CategoryService } from './category.service';
 import CreateCategoryDto from './dto/create-category.dto';
 import { AuthGuard } from 'src/auth/auth.guard';

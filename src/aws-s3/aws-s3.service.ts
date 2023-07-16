@@ -24,7 +24,7 @@ export class AwsS3Service {
         Bucket: process.env.AWS_S3_BUCKET,
         Key: filename,
         Body: imageBuffer,
-        ContentType: mimeType
+        ContentType: mimeType,
       };
       const result = await this.s3.upload(params).promise();
       return result.Location;

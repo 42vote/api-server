@@ -25,7 +25,7 @@ export default class User {
 
   @Column({ default: 0 })
   wallet: number;
-  
+
   @Column({ default: null })
   coalition: string;
 

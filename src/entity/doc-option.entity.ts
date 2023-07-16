@@ -17,7 +17,13 @@ export default class DocOption {
   goal: number;
 
   @Column()
+  voteStart: Date;
+
+  @Column()
   voteExpire: Date;
+
+  @Column()
+  docStart: Date;
 
   @Column()
   docExpire: Date;
