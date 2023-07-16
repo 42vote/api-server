@@ -3,7 +3,7 @@ name: Deploy to DEV_EB
 on:
   push:
     branches:
-      - main
+      - develop
 
 jobs:
   buildAndTest:
