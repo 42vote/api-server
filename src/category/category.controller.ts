@@ -36,6 +36,14 @@ export class CategoryController {
   @Post()
   @UseGuards(AuthAdminGuard)
   creatCategory(@Body() createCategoryDTO: CreateCategoryDto) {
+    if (createCategoryDTO.voteStart > createCategoryDTO.voteExpire) {
+      throw new BadRequestException(
+        'voteStart cannot be bigger then voteExpire',
+      );
+    }
+    if (createCategoryDTO.docStart > createCategoryDTO.docExpire) {
+      throw new BadRequestException('docStart cannot be bigger then docExpire');
+    }
     return this.categoryService.createCategory(createCategoryDTO);
   }
 
@@ -64,6 +72,14 @@ export class CategoryController {
       console.log(categoryId);
 
       throw new BadRequestException('invalid category id');
+    }
+    if (updateCategoryDTO.voteStart > updateCategoryDTO.voteExpire) {
+      throw new BadRequestException(
+        'voteStart cannot be bigger then voteExpire',
+      );
+    }
+    if (updateCategoryDTO.docStart > updateCategoryDTO.docExpire) {
+      throw new BadRequestException('docStart cannot be bigger then docExpire');
     }
     return this.categoryService.updateCategory(categoryId, updateCategoryDTO);
   }

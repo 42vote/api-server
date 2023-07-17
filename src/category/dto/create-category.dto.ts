@@ -19,21 +19,21 @@ export default class CreateCategoryDto {
 
   @IsOptional()
   @IsValidDate()
-  voteStart?: Date;
+  voteStart: Date;
 
   @IsOptional()
   @IsValidDate()
-  voteExpire?: Date;
+  voteExpire: Date;
 
   @IsOptional()
   @IsValidDate()
-  docStart?: Date;
+  docStart: Date;
 
   @IsOptional()
   @IsValidDate()
-  docExpire?: Date;
+  docExpire: Date;
 
   @IsOptional()
   @IsInt()
-  goal?: number;
+  goal: number;
 }
