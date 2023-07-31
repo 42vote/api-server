@@ -1,4 +1,4 @@
-# Introduction
+# 42Vote api-server
 
 ### 2023 42Seoul Community Problem-Solving Hackathon
 - This project started with the question, "How can we activate 42Seoul goods system?"
